@@ -1,0 +1,40 @@
+# Gradle
+.gradle/
+build/
+out/
+
+# Android
+local.properties
+*.iml
+.idea/
+*.ap_
+*.aab
+*.apk
+captures/
+.externalNativeBuild/
+.cxx/
+*.keystore
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/gradle-wrapper.jar
+!**/src/test/**/gradle-wrapper.jar
+
+# Kotlin
+.kotlin/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+*.swp
+*~
+
+# Android Studio
+/android/.idea/
+/android/app/build/
+/android/build/
+
+# Misc
+*.log
+.tmp/

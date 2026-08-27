@@ -1,0 +1,122 @@
+<resources>
+    <!-- App -->
+    <string name="app_name">Notify Later</string>
+    <string name="tagline_line1">As suas notificações pertencem a si.</string>
+    <string name="tagline_line2">Você decide quando elas chegam.</string>
+    <string name="tagline_combined">%1$s\n%2$s</string>
+
+    <!-- Navigation -->
+    <string name="nav_onboarding">Apresentação</string>
+    <string name="nav_home">Início</string>
+    <string name="nav_applications">Aplicações</string>
+    <string name="nav_application_details">Detalhes da Aplicação</string>
+    <string name="nav_queue">Fila</string>
+    <string name="nav_settings">Definições</string>
+    <string name="nav_back">Voltar</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_title">Tome o controlo das suas notificações</string>
+    <string name="onboarding_description">O Notify Later permite decidir quando as notificações chegam até si. Configure uma vez e esqueça a aplicação.</string>
+    <string name="onboarding_privacy_title">Privacidade em primeiro lugar</string>
+    <string name="onboarding_privacy_description">As suas notificações permanecem no seu dispositivo. Sem conta, sem nuvem, sem rastreio.</string>
+    <string name="onboarding_local_title">Funciona offline</string>
+    <string name="onboarding_local_description">Não é necessária ligação à internet após a instalação.</string>
+    <string name="onboarding_language_title">Escolha o seu idioma</string>
+    <string name="onboarding_language_description">Pode alterar esta opção mais tarde em Definições.</string>
+    <string name="onboarding_continue">Continuar</string>
+    <string name="onboarding_get_started">Começar</string>
+    <string name="onboarding_skip">Ignorar</string>
+    <string name="onboarding_done">Concluído</string>
+
+    <!-- Home -->
+    <string name="home_title">Notify Later</string>
+    <string name="home_subtitle">Calmo. Minimalista. Seu.</string>
+    <string name="home_status_title">Está tudo tranquilo</string>
+    <string name="home_status_description">As notificações serão guardadas e entregues conforme a sua agenda. Abra a aplicação apenas quando quiser ajustar.</string>
+    <string name="home_applications">Aplicações</string>
+    <string name="home_applications_description">Escolha que aplicações quer adiar.</string>
+    <string name="home_queue">Fila</string>
+    <string name="home_queue_description">Veja as notificações a aguardar entrega.</string>
+    <string name="home_settings">Definições</string>
+    <string name="home_settings_description">Idioma, permissões e sobre.</string>
+    <string name="home_empty_hint">Ainda não há regras configuradas. Comece por Aplicações.</string>
+
+    <!-- Applications -->
+    <string name="applications_title">Aplicações</string>
+    <string name="applications_description">Selecione as aplicações cujas notificações pretende receber mais tarde.</string>
+    <string name="applications_search_hint">Pesquisar aplicações</string>
+    <string name="applications_empty">Nenhuma aplicação encontrada.</string>
+    <string name="applications_count_zero">Nenhuma aplicação configurada</string>
+    <string name="applications_coming_soon">A deteção de aplicações estará disponível numa atualização futura.</string>
+
+    <!-- Application Details -->
+    <string name="application_details_title">Detalhes da Aplicação</string>
+    <string name="application_details_package">Pacote</string>
+    <string name="application_details_status">Estado</string>
+    <string name="application_details_delay">Atraso</string>
+    <string name="application_details_not_configured">Não configurado</string>
+    <string name="application_details_package_value">%1$s: %2$s</string>
+    <string name="application_details_coming_soon">A configuração de regras estará disponível em breve.</string>
+
+    <!-- Queue -->
+    <string name="queue_title">Fila</string>
+    <string name="queue_description">Notificações guardadas para entrega posterior.</string>
+    <string name="queue_empty_title">A fila está vazia</string>
+    <string name="queue_empty_description">Quando as notificações forem adiadas, aparecerão aqui.</string>
+    <string name="queue_coming_soon">A funcionalidade de fila estará disponível após a implementação da captura de notificações.</string>
+    <string name="queue_pending">Pendente</string>
+    <string name="queue_delivered">Entregue</string>
+    <string name="queue_dismissed">Dispensado</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Definições</string>
+    <string name="settings_language">Idioma</string>
+    <string name="settings_language_description">Escolha o seu idioma preferido.</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_portuguese">Português</string>
+    <string name="settings_notifications">Notificações</string>
+    <string name="settings_notifications_description">Gerir o acesso e a entrega de notificações.</string>
+    <string name="settings_privacy">Privacidade</string>
+    <string name="settings_privacy_description">Os seus dados permanecem no seu dispositivo. Sem analítica ou rastreio.</string>
+    <string name="settings_about">Sobre</string>
+    <string name="settings_about_description">Versão, licença e código-fonte.</string>
+    <string name="settings_version">Versão %1$s</string>
+    <string name="settings_about_value">%1$s\n%2$s</string>
+    <string name="settings_license">Licença Apache 2.0</string>
+    <string name="settings_github">Ver no GitHub</string>
+    <string name="settings_coming_soon">Definições adicionais estarão disponíveis em atualizações futuras.</string>
+
+    <!-- Common -->
+    <string name="common_ok">OK</string>
+    <string name="common_cancel">Cancelar</string>
+    <string name="common_save">Guardar</string>
+    <string name="common_done">Concluído</string>
+    <string name="common_retry">Tentar novamente</string>
+    <string name="common_search">Pesquisar</string>
+    <string name="common_no_results">Sem resultados</string>
+    <string name="common_coming_soon">Em breve</string>
+    <string name="common_learn_more">Saber mais</string>
+
+    <!-- Notification access (listener permission) -->
+    <string name="settings_notification_access_title">Acesso a notificações</string>
+    <string name="settings_notification_access_description">Permitir que o Notify Later observe as notificações recebidas. Esta opção é gerida nas definições do sistema Android.</string>
+    <string name="settings_notification_access_granted">Concedido</string>
+    <string name="settings_notification_access_not_granted">Não concedido</string>
+    <string name="settings_notification_access_enable">Ativar acesso a notificações</string>
+
+    <!-- Debug / temporary -->
+    <string name="debug_title">Depuração</string>
+    <string name="debug_captured_notifications">Notificações capturadas (temporário)</string>
+    <string name="debug_no_captured">Nenhuma notificação capturada ainda.</string>
+    <string name="debug_clear">Limpar</string>
+    <string name="debug_spike_notice">Spike da Fase 1: as notificações originais ainda não são removidas; uma cópia é republicada apenas para validação.</string>
+
+    <!-- Renderer / channel -->
+    <string name="renderer_delivered_by">Entregue pelo Notify Later</string>
+    <string name="notification_channel_name">Notificações adiadas</string>
+    <string name="notification_channel_description">Notificações republicadas pelo Notify Later</string>
+
+    <!-- Accessibility -->
+    <string name="content_desc_app_icon">Ícone da aplicação Notify Later</string>
+    <string name="content_desc_navigate_back">Voltar</string>
+</resources>
