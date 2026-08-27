@@ -116,6 +116,20 @@
     <string name="notification_channel_name">Delayed notifications</string>
     <string name="notification_channel_description">Notifications re-published by Notify Later</string>
 
+    <!-- Logs / History (real-time capture) -->
+    <string name="logs_title">Logs</string>
+    <string name="logs_header">Captured in real time</string>
+    <string name="logs_header_subtitle">Every notification observed by the listener appears here</string>
+    <string name="logs_spike_notice">Originals are never removed — only queued for delayed delivery (Phase 2).</string>
+    <string name="logs_empty_title">Nothing captured yet</string>
+    <string name="logs_empty_description">Send a notification from another app to see it here.</string>
+    <string name="logs_count">captured</string>
+
+    <!-- Home hero -->
+    <string name="home_hero_badge">Calm. Minimal. Yours.</string>
+    <string name="home_logs">Logs</string>
+    <string name="home_logs_description">Live view of every notification captured.</string>
+
     <!-- Accessibility -->
     <string name="content_desc_app_icon">Notify Later app icon</string>
     <string name="content_desc_navigate_back">Navigate back</string>

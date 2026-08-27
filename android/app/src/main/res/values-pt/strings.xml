@@ -116,6 +116,20 @@
     <string name="notification_channel_name">Notificações adiadas</string>
     <string name="notification_channel_description">Notificações republicadas pelo Notify Later</string>
 
+    <!-- Logs / History (real-time capture) -->
+    <string name="logs_title">Logs</string>
+    <string name="logs_header">Capturados em tempo real</string>
+    <string name="logs_header_subtitle">Toda notificação observada aparece aqui</string>
+    <string name="logs_spike_notice">Originais nunca são removidos — ficam na fila para entrega atrasada (Fase 2).</string>
+    <string name="logs_empty_title">Nada capturado ainda</string>
+    <string name="logs_empty_description">Envie uma notificação de outro app para ver aqui.</string>
+    <string name="logs_count">capturadas</string>
+
+    <!-- Home hero -->
+    <string name="home_hero_badge">Calmo. Minimalista. Seu.</string>
+    <string name="home_logs">Logs</string>
+    <string name="home_logs_description">Visão ao vivo de cada notificação capturada.</string>
+
     <!-- Accessibility -->
     <string name="content_desc_app_icon">Ícone da aplicação Notify Later</string>
     <string name="content_desc_navigate_back">Voltar</string>

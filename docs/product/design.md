@@ -2,98 +2,73 @@
 
 ## Design Philosophy
 
-Notify Later should feel quiet.
+Notify Later deve transmitir que as notificações não estão sendo bloqueadas — estão **esperando o momento certo**.
 
-The application exists to reduce interruptions, not create another source of them. Every screen, word, and color should reinforce calm and trust.
+> **Minimalista, fofo, calmo e moderno.** Formas arredondadas, bastante espaço vazio e detalhes suaves. O roxo representa tecnologia/confiança, o amarelo representa tempo e atenção.
 
-> If Notify Later is working correctly, users should not need to open Notify Later very often.
+> Se o Notify Later estiver funcionando, o usuário quase não precisa abrir o app.
 
-The app is a utility that disappears. Success is measured by time *not* spent in the app, by fewer interruptions, and by user confidence that notifications will arrive when expected.
+## Paleta do Logo
 
-## Design Principles
+| Uso | Nome | HEX |
+|-----|------|-----|
+| 🟣 Primary | Roxo vibrante — identidade principal | `#6E51F7` |
+| 🟣 Dark | Profundidade/contraste | `#4634C9` |
+| 🟣 Medium | Secundário | `#6347ED` |
+| 🤍 Background | Branco/lilás suave | `#F2F2FC` |
+| 🟡 Accent | Amarelo relógio | `#FEC92F` |
+| 🟠 Badge | Dourado | `#FEBA2E` |
+| 🔵 Light | Lilás claro detalhes | `#D0CDFC` |
 
-### 1. Quiet by Default
+**Uso recomendado:** `Primary #6E51F7` como cor principal; `YellowClock` apenas para destaques de tempo (badges, relógio, contadores). Não usar todas simultaneamente.
 
-- No loud colors, no excessive cards, no gradients, no gamification.
-- Use whitespace generously. Let content breathe.
-- Animations, if any, are subtle and purposeful (e.g., 150–200 ms easing for navigation), never attention-seeking.
+Implementação em Compose: `ui/theme/Color.kt` (`PurplePrimary`, `PurpleDark`, `YellowClock`, etc.) e `Theme.kt` com `lightColorScheme`/`darkColorScheme` e `Shapes` arredondados (14–28dp). `dynamicColor = false` por padrão para manter identidade.
 
-### 2. One Decision at a Time
+## Princípios
 
-- Each screen asks one primary question.
-- Onboarding progresses step-by-step; settings are grouped with clear defaults.
-- Avoid overwhelming the user with bulk configuration. Provide sensible presets and progressive disclosure.
+1. **Quiet by default** — whitespace generoso, sem gradientes agressivos.
+2. **One decision at a time** — uma pergunta por tela.
+3. **Native first** — Material 3 + shapes 20–24dp.
+4. **No dark patterns** — consentimento explícito.
+5. **Privacy is visible** — dados locais visíveis.
+6. **The app should disappear** — set-and-forget.
 
-### 3. Native First
+## Elementos Visuais
 
-- Follow Material 3 conventions and Android platform patterns.
-- Use AndroidX, Material 3 components, and system typography.
-- Prefer platform navigation (back, gestures) over custom chrome.
-- Respect dynamic color and dark theme.
+Usar: cantos arredondados (20dp cards, 28dp hero), cards suaves com `elevation 1dp`, ícones **Rounded** (`notifications`, `schedule`, `snooze`, `history`, `apps`, `settings`), formas geométricas, badges em pílula, ilustrações minimalistas, animações suaves 150–200ms, sombras discretas, contraste suave.
 
-### 4. No Dark Patterns
+Evitar: vermelho dominante, sombras fortes, gradientes excessivos, ícones muito detalhados, estética infantil, alarmes/emergência.
 
-- Permissions, toggles, and consent must be explicit, reversible, and equally accessible.
-- Do not use persuasive copy to push users toward enabling more than they need.
-- Label destructive or far-reaching actions clearly.
+## O detalhe “fofo”
 
-### 5. Privacy Is Visible
+O **relógio amarelo integrado ao sino** vira elemento recorrente:
 
-- Show that data stays local. Surface storage and permission state transparently.
-- When handling notification content, make it clear what is stored, for how long, and how to clear it.
-- Avoid technical jargon but do not hide scope.
+- 🔔 notificação normal
+- 🔔 + 🟡 relógio = agendada
+- 🔔 + animação circular = esperando
+- `BellWithClockBadge` em `ui/components/NotifyLaterComponents.kt`
 
-### 6. The App Should Disappear
+Regra visual: **🔔 + 🕐 = esta notificação está esperando.**
 
-- Optimize for set-and-forget use. The home screen confirms everything is working; it does not demand action.
-- Avoid badges, streaks, or engagement hooks inside Notify Later itself.
-- Provide quiet confirmation rather than celebration.
+## Tokens
 
-## Visual Direction
+| Token | Light | Dark |
+|-------|-------|------|
+| `primary` | `#6E51F7` | `#B9A6FF` |
+| `primaryContainer` | `#E9E7FD` | `#2E227A` |
+| `secondary` | `#6347ED` | `#D0CDFC` |
+| `tertiary` | `#FEC92F` | `#FEC92F` |
+| `background` | `#F2F2FC` | `#14131F` |
+| `surface` | `#FFFFFF` | `#1E1D2A` |
+| `surfaceVariant` | `#EDE9FF` | `#2D2B45` |
 
-Minimal, calm, spacious, accessible, native Android, low visual noise, clear typography, subtle use of color.
+## Componentes
 
-- **Layout:** single-column, generous padding (16–24 dp), clear hierarchy with headline / body / caption.
-- **Typography:** Material 3 type scale, system font. Headlines are concise; body text is legible at 16 sp with 24 sp line height.
-- **Color:** restrained palette derived from Material 3 dynamic color. Color is used to communicate state (success, warning, error), not decoration.
-- **Elevation:** flat or subtle (0–1 dp). Avoid heavy shadows.
-- **Imagery:** no stock illustrations for decoration. Use simple icons and empty-state guidance.
+- **AppBar** — `TopAppBar` com `containerColor = background`, sem branding extra.
+- **SoftCard** — `RoundedCornerShape(20dp)`, `containerColor = surface`, `elevation 1dp`.
+- **IconBadge / BellWithClockBadge / PillBadge** — em `ui/components/NotifyLaterComponents.kt`.
+- **Hero** — card roxo `primary` com logo 64dp + badge amarelo com contador.
+- **EmptyState** — círculo `primaryContainer` + sino, título + descrição curta.
+- **Buttons** — filled primary 16dp, text secondary. Um primário por tela.
 
-## Design Tokens (Conceptual)
-
-Defined conceptually; implemented via Material 3 `ColorScheme` and `Typography`.
-
-| Token | Purpose |
-|-------|---------|
-| `Background` | App background |
-| `Surface` | Card / sheet surface |
-| `Primary` | Primary actions, selected state |
-| `Text Primary` | Headlines and primary body |
-| `Text Secondary` | Captions, helper text, timestamps |
-| `Border` | Dividers and outlines (low contrast) |
-| `Success` | Confirmation, delivered state |
-| `Warning` | Attention without alarm (e.g., permission needed) |
-| `Error` | Failure, blocked delivery |
-
-Do not aggressively customize Material 3 yet. Extend tokens only when a real screen demands it.
-
-## Component Guidance
-
-- **App Bar:** standard Material 3 TopAppBar, no custom branding bar.
-- **Buttons:** filled for primary, outlined or text for secondary. One primary per screen.
-- **Lists:** plain lists with dividers; avoid excessive card nesting. Cards only for grouped settings.
-- **Empty States:** short headline + one sentence + single CTA. See strings for wording.
-- **Accessibility:** minimum 48 dp touch targets, 4.5:1 contrast, content descriptions for icons, Dynamic Type / font scaling support.
-
-## Internationalization Considerations
-
-- All user-facing strings via `res/values/strings.xml` and `res/values-pt/strings.xml`.
-- Design must accommodate 30 %+ text expansion (Portuguese vs English).
-- No hard-coded strings in Kotlin. No mixed languages in a single screen.
-
-## What to Avoid
-
-- Gradients, heavy shadows, glassmorphism, gamification, confetti, streaks.
-- Excessive cards stacked on cards.
-- Jargon or alarmist language around permissions.
-- Any pattern that makes the app itself a source of distraction.
+Ver telas: `feature/home/HomeScreen.kt`, `feature/onboarding/OnboardingScreen.kt`, `feature/logs/LogsScreen.kt`, `feature/settings/SettingsScreen.kt`.

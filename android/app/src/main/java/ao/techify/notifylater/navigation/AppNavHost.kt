@@ -9,6 +9,7 @@ import androidx.navigation.navArgument
 import ao.techify.notifylater.feature.applications.ApplicationDetailsScreen
 import ao.techify.notifylater.feature.applications.ApplicationsScreen
 import ao.techify.notifylater.feature.home.HomeScreen
+import ao.techify.notifylater.feature.logs.LogsScreen
 import ao.techify.notifylater.feature.onboarding.OnboardingScreen
 import ao.techify.notifylater.feature.queue.QueueScreen
 import ao.techify.notifylater.feature.settings.SettingsScreen
@@ -35,7 +36,8 @@ fun AppNavHost(
             HomeScreen(
                 onNavigateToApplications = { navController.navigate(Routes.APPLICATIONS) },
                 onNavigateToQueue = { navController.navigate(Routes.QUEUE) },
-                onNavigateToSettings = { navController.navigate(Routes.SETTINGS) }
+                onNavigateToSettings = { navController.navigate(Routes.SETTINGS) },
+                onNavigateToLogs = { navController.navigate(Routes.LOGS) }
             )
         }
         composable(Routes.APPLICATIONS) {
@@ -57,8 +59,14 @@ fun AppNavHost(
         composable(Routes.QUEUE) {
             QueueScreen(onNavigateBack = { navController.popBackStack() })
         }
+        composable(Routes.LOGS) {
+            LogsScreen(onNavigateBack = { navController.popBackStack() })
+        }
         composable(Routes.SETTINGS) {
-            SettingsScreen(onNavigateBack = { navController.popBackStack() })
+            SettingsScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToLogs = { navController.navigate(Routes.LOGS) }
+            )
         }
     }
 }
