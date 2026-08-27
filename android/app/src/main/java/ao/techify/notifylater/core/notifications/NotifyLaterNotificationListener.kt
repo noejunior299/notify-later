@@ -85,12 +85,21 @@ class NotifyLaterNotificationListener : NotificationListenerService() {
                 "captured package=${raw.sourcePackage} key=${raw.notificationKey}"
             )
 
+            // Phase 1 safety: original notification is NEVER cancelled and is NOT
+            // automatically re-published. Captured notifications are queued in
+            // the in-memory repository and will only be delivered when the
+            // user-configured delay expires (Phase 2 scheduler). This prevents
+            // the spike from spamming every incoming notification.
             scope.launch {
                 runCatching { repository().save(captured) }
                     .onFailure { CaptureLogger.w(TAG, "save failed", it) }
-                // Re-publication only after capture succeeded; original not cancelled.
-                runCatching { renderer().render(captured) }
-                    .onFailure { CaptureLogger.w(TAG, "render failed", it) }
+                CaptureLogger.d(
+                    TAG,
+                    "captured notification queued for delayed delivery (not published yet) package=${raw.sourcePackage}"
+                )
+                // Rendering is deferred to the future delay engine:
+                // renderer().render(captured) will be called only after the
+                // DelayPolicy / DeliverySchedule elapses. See Phase 2.
             }
         } catch (t: Throwable) {
             // Fail safe: any unexpected error leaves the original notification alone.
