@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.navigation.compose.rememberNavController
-import ao.techify.notifylater.navigation.AppNavHost
+import ao.techify.notifylater.navigation.AppShell
 import ao.techify.notifylater.ui.theme.NotifyLaterTheme
 
 class MainActivity : ComponentActivity() {
@@ -15,7 +15,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             NotifyLaterTheme {
                 val navController = rememberNavController()
-                AppNavHost(navController = navController)
+                AppShell(navController = navController)
             }
         }
     }

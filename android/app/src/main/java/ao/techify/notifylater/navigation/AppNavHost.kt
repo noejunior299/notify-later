@@ -1,6 +1,10 @@
 package ao.techify.notifylater.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -17,11 +21,15 @@ import ao.techify.notifylater.feature.settings.SettingsScreen
 @Composable
 fun AppNavHost(
     navController: NavHostController,
+    modifier: Modifier = Modifier,
     startDestination: String = Routes.ONBOARDING
 ) {
     NavHost(
         navController = navController,
-        startDestination = startDestination
+        startDestination = startDestination,
+        modifier = modifier,
+        enterTransition = { fadeIn(tween(durationMillis = 200)) },
+        exitTransition = { fadeOut(tween(durationMillis = 140)) }
     ) {
         composable(Routes.ONBOARDING) {
             OnboardingScreen(
@@ -57,14 +65,13 @@ fun AppNavHost(
             )
         }
         composable(Routes.QUEUE) {
-            QueueScreen(onNavigateBack = { navController.popBackStack() })
+            QueueScreen()
         }
         composable(Routes.LOGS) {
-            LogsScreen(onNavigateBack = { navController.popBackStack() })
+            LogsScreen()
         }
         composable(Routes.SETTINGS) {
             SettingsScreen(
-                onNavigateBack = { navController.popBackStack() },
                 onNavigateToLogs = { navController.navigate(Routes.LOGS) }
             )
         }
