@@ -1,7 +1,21 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
 }
+
+// Release signing credentials. Kept out of version control: create an
+// android/keystore.properties with storeFile, storePassword, keyAlias and
+// keyPassword next to this module's root. Without it, release builds are
+// simply left unsigned.
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystoreProperties = Properties().apply {
+    if (keystorePropertiesFile.exists()) {
+        keystorePropertiesFile.inputStream().use { load(it) }
+    }
+}
+val hasReleaseSigning = keystorePropertiesFile.exists()
 
 android {
     namespace = "ao.techify.notifylater"
@@ -23,6 +37,14 @@ android {
         release {
             optimization {
                 enable = false
+            }
+            if (hasReleaseSigning) {
+                signingConfig = signingConfigs.create("release") {
+                    storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
+                    storePassword = keystoreProperties.getProperty("storePassword")
+                    keyAlias = keystoreProperties.getProperty("keyAlias")
+                    keyPassword = keystoreProperties.getProperty("keyPassword")
+                }
             }
         }
     }

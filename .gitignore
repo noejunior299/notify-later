@@ -5,6 +5,8 @@ out/
 
 # Android
 local.properties
+keystore.properties
+keystore/
 *.iml
 .idea/
 *.ap_
