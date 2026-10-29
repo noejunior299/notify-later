@@ -75,18 +75,22 @@ As quatro áreas principais — **Início, Fila, Registos e Definições** — v
 
 - **AppBar** — `TopAppBar` com `containerColor = background`, sem branding extra. Nos ecrãs principais não há seta de voltar (a barra inferior resolve a navegação).
 - **SoftCard** — `RoundedCornerShape(22dp)`, `containerColor = surface`, `elevation 1dp`. É o único contentor de cartão do sistema.
-- **QuietHero** — cartão roxo `primary` com o logo 56dp, um arco de relógio desenhado em `Canvas` e pílulas de estado (`Watching quietly` / `Notification access needed`). O arco anima uma única vez ao entrar na Home (1100 ms, `FastOutSlowInEasing`) e respeita a escala de animação do sistema.
+- **QuietHero** — cartão roxo `primary` com o logo 56dp, um arco de relógio desenhado em `Canvas` e pílulas de estado (`Watching quietly` / `Notification permissions needed`), incluindo a contagem de notificações em espera. O arco anima uma única vez ao entrar na Home (1100 ms, `FastOutSlowInEasing`) e respeita a escala de animação do sistema.
 - **ActionTile** — tile com altura mínima de 142dp para a grelha 2×2 da Home; cresce com a escala de fonte graças a `IntrinsicSize.Min` na linha. `accent = true` usa o amarelo do relógio para a Fila, o resto fica em `primaryContainer`.
 - **QuietEmptyState** — halo lilás de 124dp, círculo de superfície de 92dp, sino e badge amarelo de relógio. Usado em Fila, Registos, Aplicações e Detalhes.
 - **InitialAvatar** — inicial da aplicação num dos quatro tons da marca (nunca cores arbitrárias por hash).
 - **TimeBadge** — pílula amarela com ícone `Schedule`, para horas e contadores de tempo.
 - **NotifyScaffold** — estrutura comum de ecrã: `TopAppBar`, insets e fundo. Evita divergência entre telas.
+- **Queue item** — cartão de notificação em espera com avatar, app, título, texto, hora prevista e contagem decrescente (`In 54 seconds`). O badge `Pending` usa o amarelo do relógio.
+- **Permission card** — cartão reutilizável para acesso a notificações e `POST_NOTIFICATIONS`: estado real (`Granted` / `Not granted`), explicação e um único botão de ação.
+- **Delay dialog** — `AlertDialog` com opções de 30 segundos, 1, 5, 15 e 60 minutos; a escolha aplica-se imediatamente e persiste.
+- **Logs item** — estado (`Pending` / `Delivered` / `Dismissed` / `Expired`) com hora prevista ou de entrega, para tornar o atraso visível e auditável.
 - **Buttons** — filled primary 14–18dp, text secondary. Um primário por ecrã.
 
 ## Estados
 
 - **Vazio** — sempre uma ação ou uma explicação, nunca apenas “nada aqui”.
-- **Permissão** — o cartão de acesso a notificações mostra o estado real (`Granted` / `Not granted`) e um botão que abre as definições do sistema.
+- **Permissão** — os cartões de acesso a notificações e de postagem mostram o estado real (`Granted` / `Not granted`); o primeiro abre as definições do sistema, o segundo pede `POST_NOTIFICATIONS`. A Home trata qualquer permissão em falta como bloqueio.
 - **Acessibilidade** — alvos de toque ≥ 48dp, `contentDescription` em ícones de navegação, texto com contraste ≥ 4.5:1, tipografia em `sp`.
 
 Ver telas: `feature/home/HomeScreen.kt`, `feature/onboarding/OnboardingScreen.kt`, `feature/logs/LogsScreen.kt`, `feature/settings/SettingsScreen.kt`, `navigation/AppShell.kt`.

@@ -17,21 +17,21 @@ This roadmap describes intended phases. Dates are not committed; order is intent
 - CI: `android.yml` builds and runs unit tests
 - License Apache-2.0, SECURITY.md, CODE_OF_CONDUCT.md
 
-Status: **in progress** (this phase).
+Status: **complete**.
 
 ## Phase 1 — Notification Capture
 
-*Observe and persist notification metadata without yet delaying.*
+*Observe and persist notification metadata safely.*
 
 - `NotificationListenerService` (permission-gated, user-consented)
-- Detect installed applications (package manager query)
+- Detect installed applications (package manager query) — pending
 - Capture notifications, identify source application
-- Persist notification metadata locally (Room) — schema to be designed, respecting privacy (minimal fields, retention policy)
+- Persist notification metadata locally — implemented with an app-private store; Room migration pending
 - Basic permission handling and onboarding for notification access
 
-Success criteria: the app can list which apps have sent notifications and when, locally, without altering delivery.
+Success criteria: new notifications are captured, filtered safely, and persisted locally without hiding anything that cannot be re-posted.
 
-Status: **spike implemented** — listener, capture, in-memory debug view, and safe re-publication validated; persistence and final UX pending.
+Status: **implemented (MVP)** — listener, filters, persistent store, and unit tests. Installed-app detection and Room migration pending.
 
 ## Phase 2 — Delay Engine
 
@@ -44,6 +44,8 @@ Status: **spike implemented** — listener, capture, in-memory debug view, and s
 - Notification renderer — re-post held notifications at scheduled time
 - Pipeline: see `docs/architecture/notification-pipeline.md`
 
+Status: **MVP implemented** — global configurable delay, persistent queue, WorkManager scheduler, re-delivery, and retry safety. Per-app rules, batching, and queue cancellation pending.
+
 ## Phase 3 — User Experience
 
 *Onboarding, management, and everyday use.*
@@ -54,6 +56,8 @@ Status: **spike implemented** — listener, capture, in-memory debug view, and s
 - Queue screen: pending, delivered, dismissed
 - History and Settings: retention, clear data, language, about
 - Accessibility pass and visual polish per `docs/product/design.md`
+
+Status: **in progress** — onboarding, queue, history/logs, and settings (delay + permissions) implemented; app management and rule configuration pending.
 
 ## Phase 4 — Reliability
 

@@ -61,13 +61,14 @@ Full details: [docs/product/principles.md](docs/product/principles.md)
 ## Current Status
 
 ```
-🚧 Early development — Phase 0 Foundation
+🚧 Early development — notification delay MVP working
 ```
 
-- Repository structure and documentation are being established.
-- Android project exists in `android/` with a minimal Compose + Material 3 app.
-- Notification interception, delay engine, queue, and scheduler are **not yet implemented**.
-- Contributions to foundation, documentation, and early architecture are welcome.
+- Android app built with Jetpack Compose + Material 3, available in English and Portuguese.
+- The notification listener captures new notifications, persists them locally, cancels the original, and re-delivers it after the delay configured in Settings.
+- Queue and Logs show pending and delivered notifications; Settings handles notification access, posting permission, and the global delay.
+- Per-app rules and installed-app detection are **not implemented yet**; the current MVP applies one global delay to every supported app.
+- Contributions to rules, reliability, testing, and documentation are welcome.
 
 See [Roadmap](docs/product/roadmap.md).
 
@@ -85,13 +86,13 @@ The repository is structured to allow a future `ios/` implementation sharing pro
 <p align="center">
   <img src="docs/assets/screenshots/onboarding.png" alt="Onboarding with the sleeping bell logo and the three product principles" width="240" />
   <img src="docs/assets/screenshots/home.png" alt="Home with the quiet status hero and shortcuts to Applications, Queue, Logs and Settings" width="240" />
-  <img src="docs/assets/screenshots/queue.png" alt="Empty Queue with the sleeping bell and the Pending badge" width="240" />
+  <img src="docs/assets/screenshots/queue.png" alt="Queue with two notifications held for later delivery and their live countdowns" width="240" />
 </p>
 
 <p align="center">
-  <img src="docs/assets/screenshots/logs.png" alt="Empty Logs screen with a real-time capture introduction" width="240" />
-  <img src="docs/assets/screenshots/settings.png" alt="Settings with notification access, preferences and about sections" width="240" />
-  <img src="docs/assets/screenshots/applications.png" alt="Applications screen showing that app detection is coming in a future update" width="240" />
+  <img src="docs/assets/screenshots/logs.png" alt="Logs showing delivered notifications with their delivery times" width="240" />
+  <img src="docs/assets/screenshots/settings.png" alt="Settings with permission cards, delivery delay, preferences and about sections" width="240" />
+  <img src="docs/assets/screenshots/applications.png" alt="Applications screen explaining that per-app rules are coming soon" width="240" />
 </p>
 
 <p align="center"><em>Debug build on Android, English, light theme. The interface is also available in Portuguese and in dark theme.</em></p>
@@ -160,10 +161,10 @@ Work lives in `android/`; product and architecture docs live in `docs/`.
 
 ## Roadmap
 
-- **Phase 0 — Foundation** — repo, architecture, docs, localization, CI ✓ _in progress_
-- **Phase 1 — Notification Capture** — `NotificationListenerService`, app detection, persistence
-- **Phase 2 — Delay Engine** — rules, queue, scheduler, rendering
-- **Phase 3 — User Experience** — onboarding, management, history, settings
+- **Phase 0 — Foundation** — repo, architecture, docs, localization, CI ✓ _complete_
+- **Phase 1 — Notification Capture** — `NotificationListenerService`, persistence ✓ _implemented; app detection pending_
+- **Phase 2 — Delay Engine** — queue, WorkManager scheduler, renderer ✓ _MVP implemented; per-app rules pending_
+- **Phase 3 — User Experience** — onboarding, history, settings ✓ _in progress; app management pending_
 - **Phase 4 — Reliability** — battery, permissions, resilience, a11y, tests
 - **Phase 5 — Community** — beta, translations, feedback
 - **Future** — iOS, advanced rules, profiles
