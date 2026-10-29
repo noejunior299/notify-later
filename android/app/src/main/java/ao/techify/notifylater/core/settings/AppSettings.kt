@@ -6,6 +6,7 @@ package ao.techify.notifylater.core.settings
 data class AppSettings(
     val onboardingCompleted: Boolean = false,
     val language: String = "en",
+    val enabled: Boolean = true,
     val deliveryDelayMillis: Long = DEFAULT_DELIVERY_DELAY_MILLIS
 ) {
     companion object {

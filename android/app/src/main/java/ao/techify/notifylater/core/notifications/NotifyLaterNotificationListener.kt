@@ -52,6 +52,11 @@ class NotifyLaterNotificationListener : NotificationListenerService() {
         if (sbn == null) return
         try {
             val selfPackage = packageName
+            val holder = applicationContext as? NotifyLaterApplicationHolder
+            if (holder?.settingsRepository?.current?.enabled == false) {
+                CaptureLogger.d(TAG, "app disabled; leaving notification untouched")
+                return
+            }
             when (session.decide(sbn.packageName, sbn.key)) {
                 NotificationSessionFilter.Decision.IgnoreSelf -> {
                     // Never capture ourselves (prevents recursion). No content logged.

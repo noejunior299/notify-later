@@ -1,6 +1,8 @@
 package ao.techify.notifylater.feature.settings
 
 import android.Manifest
+import android.content.Intent
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
@@ -34,6 +36,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.Switch
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -83,6 +86,9 @@ fun SettingsScreen(
         mutableStateOf(PermissionHelper.hasPostNotificationsPermission(context))
     }
     var showDelayDialog by remember { mutableStateOf(false) }
+    var showLanguageDialog by remember { mutableStateOf(false) }
+    var showAboutDialog by remember { mutableStateOf(false) }
+    var showPrivacyDialog by remember { mutableStateOf(false) }
 
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner, context) {
@@ -149,6 +155,20 @@ fun SettingsScreen(
             Spacer(Modifier.height(8.dp))
             SettingsGroup {
                 SettingsRow(
+                    icon = Icons.Rounded.NotificationsActive,
+                    title = "Enable Notify Later",
+                    description = "When disabled, notifications are delivered immediately.",
+                    trailing = {
+                        Switch(
+                            checked = settings.enabled,
+                            onCheckedChange = { value ->
+                                scope.launch { app.settingsRepository.setEnabled(value) }
+                            }
+                        )
+                    }
+                )
+                SettingsDivider()
+                SettingsRow(
                     icon = Icons.Rounded.Schedule,
                     title = stringResource(R.string.settings_delivery_delay),
                     description = stringResource(R.string.settings_delivery_delay_description),
@@ -165,7 +185,8 @@ fun SettingsScreen(
                 SettingsRow(
                     icon = Icons.Rounded.VerifiedUser,
                     title = stringResource(R.string.settings_language),
-                    description = stringResource(R.string.settings_language_description)
+                    description = stringResource(R.string.settings_language_description),
+                    onClick = { showLanguageDialog = true }
                 )
                 SettingsDivider()
                 SettingsRow(
@@ -184,10 +205,11 @@ fun SettingsScreen(
                 SettingsRow(
                     icon = Icons.Rounded.Shield,
                     title = stringResource(R.string.settings_privacy),
-                    description = stringResource(R.string.settings_privacy_description)
+                    description = stringResource(R.string.settings_privacy_description),
+                    onClick = { showPrivacyDialog = true }
                 )
                 SettingsDivider()
-                AboutRow()
+                AboutRow(onClick = { showAboutDialog = true })
             }
 
             Spacer(Modifier.height(16.dp))
@@ -199,6 +221,82 @@ fun SettingsScreen(
             )
             Spacer(Modifier.height(24.dp))
         }
+    }
+
+    if (showLanguageDialog) {
+        AlertDialog(
+            onDismissRequest = { showLanguageDialog = false },
+            title = { Text(stringResource(R.string.settings_language)) },
+            text = {
+                Column {
+                    listOf("en" to "English", "pt" to "Português").forEach { (code, label) ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    scope.launch {
+                                        app.settingsRepository.setLanguage(code)
+                                        showLanguageDialog = false
+                                        (context as? android.app.Activity)?.recreate()
+                                    }
+                                }
+                                .padding(vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = settings.language == code,
+                                onClick = null
+                            )
+                            Spacer(Modifier.width(12.dp))
+                            Text(label, style = MaterialTheme.typography.bodyLarge)
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showLanguageDialog = false }) {
+                    Text(stringResource(R.string.common_done))
+                }
+            }
+        )
+    }
+
+    if (showAboutDialog) {
+        val packageInfo = remember(context) { context.packageManager.getPackageInfo(context.packageName, 0) }
+        val versionName = packageInfo.versionName ?: "1.0"
+        AlertDialog(
+            onDismissRequest = { showAboutDialog = false },
+            title = { Text(stringResource(R.string.app_name)) },
+            text = {
+                Column {
+                    Text(stringResource(R.string.settings_about_description))
+                    Spacer(Modifier.height(8.dp))
+                    Text(stringResource(R.string.settings_version, versionName))
+                    Text(stringResource(R.string.settings_license))
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showAboutDialog = false }) { Text(stringResource(R.string.common_done)) }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    runCatching {
+                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/noejunior299/notify-later")))
+                    }
+                }) { Text(stringResource(R.string.settings_github)) }
+            }
+        )
+    }
+
+    if (showPrivacyDialog) {
+        AlertDialog(
+            onDismissRequest = { showPrivacyDialog = false },
+            title = { Text(stringResource(R.string.settings_privacy)) },
+            text = { Text(stringResource(R.string.settings_privacy_description)) },
+            confirmButton = {
+                TextButton(onClick = { showPrivacyDialog = false }) { Text(stringResource(R.string.common_done)) }
+            }
+        )
     }
 
     if (showDelayDialog) {
@@ -410,10 +508,11 @@ private fun SettingsRow(
 }
 
 @Composable
-private fun AboutRow() {
+private fun AboutRow(onClick: () -> Unit = {}) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable(onClick = onClick)
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

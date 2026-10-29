@@ -42,6 +42,10 @@ import ao.techify.notifylater.ui.components.NotifyScaffold
 import ao.techify.notifylater.ui.components.PillBadge
 import ao.techify.notifylater.ui.components.QuietEmptyState
 import ao.techify.notifylater.ui.components.SoftCard
+import android.graphics.drawable.Drawable
+import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.core.graphics.drawable.toBitmap
 import ao.techify.notifylater.ui.components.TimeBadge
 import kotlinx.coroutines.launch
 import java.text.DateFormat
@@ -129,7 +133,7 @@ fun LogsScreen(onNavigateBack: (() -> Unit)? = null) {
                                     .padding(14.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                InitialAvatar(name = appName)
+                                AppIcon(packageName = n.sourcePackage)
                                 Spacer(Modifier.width(12.dp))
                                 Column(modifier = Modifier.weight(1f)) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -225,5 +229,22 @@ private fun statusColors(status: NotificationStatus): Pair<Color, Color> {
         NotificationStatus.DELIVERED -> scheme.primaryContainer to scheme.onPrimaryContainer
         NotificationStatus.DISMISSED -> scheme.surfaceVariant to scheme.onSurfaceVariant
         NotificationStatus.EXPIRED -> scheme.surfaceVariant to scheme.onSurfaceVariant
+    }
+}
+
+@Composable
+private fun AppIcon(packageName: String, size: androidx.compose.ui.unit.Dp = 40.dp) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val drawable = androidx.compose.runtime.remember(packageName) {
+        try { context.packageManager.getApplicationIcon(packageName) } catch (_: Exception) { null }
+    }
+    if (drawable != null) {
+        Image(
+            bitmap = drawable.toBitmap().asImageBitmap(),
+            contentDescription = null,
+            modifier = androidx.compose.ui.Modifier.size(size)
+        )
+    } else {
+        ao.techify.notifylater.ui.components.InitialAvatar(name = packageName)
     }
 }

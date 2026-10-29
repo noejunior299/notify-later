@@ -9,6 +9,7 @@ interface SettingsRepository {
     val settings: Flow<AppSettings>
     val current: AppSettings
     suspend fun setOnboardingCompleted(completed: Boolean)
+    suspend fun setEnabled(enabled: Boolean)
     suspend fun setLanguage(language: String)
     suspend fun setDeliveryDelayMillis(delayMillis: Long)
 }
@@ -20,6 +21,10 @@ class InMemorySettingsRepository : SettingsRepository {
 
     override suspend fun setOnboardingCompleted(completed: Boolean) {
         _settings.value = _settings.value.copy(onboardingCompleted = completed)
+    }
+
+    override suspend fun setEnabled(enabled: Boolean) {
+        _settings.value = _settings.value.copy(enabled = enabled)
     }
 
     override suspend fun setLanguage(language: String) {
@@ -48,6 +53,10 @@ class PersistentSettingsRepository(context: Context) : SettingsRepository {
         update { it.copy(onboardingCompleted = completed) }
     }
 
+    override suspend fun setEnabled(enabled: Boolean) {
+        update { it.copy(enabled = enabled) }
+    }
+
     override suspend fun setLanguage(language: String) {
         update { it.copy(language = language) }
     }
@@ -60,6 +69,7 @@ class PersistentSettingsRepository(context: Context) : SettingsRepository {
         val next = transform(_settings.value)
         prefs.edit()
             .putBoolean(KEY_ONBOARDING_COMPLETED, next.onboardingCompleted)
+            .putBoolean(KEY_ENABLED, next.enabled)
             .putString(KEY_LANGUAGE, next.language)
             .putLong(KEY_DELIVERY_DELAY, next.deliveryDelayMillis)
             .apply()
@@ -70,6 +80,7 @@ class PersistentSettingsRepository(context: Context) : SettingsRepository {
         val delay = prefs.getLong(KEY_DELIVERY_DELAY, AppSettings.DEFAULT_DELIVERY_DELAY_MILLIS)
         return AppSettings(
             onboardingCompleted = prefs.getBoolean(KEY_ONBOARDING_COMPLETED, false),
+            enabled = prefs.getBoolean(KEY_ENABLED, true),
             language = prefs.getString(KEY_LANGUAGE, "en") ?: "en",
             deliveryDelayMillis = if (delay in AppSettings.MIN_DELIVERY_DELAY_MILLIS..
                 AppSettings.MAX_DELIVERY_DELAY_MILLIS
@@ -84,6 +95,7 @@ class PersistentSettingsRepository(context: Context) : SettingsRepository {
     companion object {
         private const val PREFS_NAME = "notify_later_settings"
         private const val KEY_ONBOARDING_COMPLETED = "onboarding_completed"
+        private const val KEY_ENABLED = "enabled"
         private const val KEY_LANGUAGE = "language"
         private const val KEY_DELIVERY_DELAY = "delivery_delay_millis"
     }
