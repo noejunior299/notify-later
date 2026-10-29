@@ -11,6 +11,7 @@
     <string name="nav_applications">Applications</string>
     <string name="nav_application_details">Application Details</string>
     <string name="nav_queue">Queue</string>
+    <string name="nav_logs">Logs</string>
     <string name="nav_settings">Settings</string>
     <string name="nav_back">Back</string>
 
@@ -103,6 +104,7 @@
     <string name="settings_notification_access_granted">Granted</string>
     <string name="settings_notification_access_not_granted">Not granted</string>
     <string name="settings_notification_access_enable">Enable notification access</string>
+    <string name="settings_notification_access_manage">Manage access</string>
 
     <!-- Debug / temporary -->
     <string name="debug_title">Debug</string>
@@ -127,10 +129,24 @@
 
     <!-- Home hero -->
     <string name="home_hero_badge">Calm. Minimal. Yours.</string>
+    <string name="home_hero_subtitle">Held until the right moment.</string>
     <string name="home_logs">Logs</string>
     <string name="home_logs_description">Live view of every notification captured.</string>
+    <string name="home_watching_quietly">Watching quietly</string>
+    <string name="home_access_needed">Notification access needed</string>
+    <string name="home_manage">Manage</string>
+
+    <!-- Settings groups -->
+    <string name="settings_group_permissions">Permissions</string>
+    <string name="settings_group_preferences">Preferences</string>
+    <string name="settings_group_about">About</string>
+
+    <!-- Logs -->
+    <string name="logs_clear">Clear log</string>
 
     <!-- Accessibility -->
     <string name="content_desc_app_icon">Notify Later app icon</string>
     <string name="content_desc_navigate_back">Navigate back</string>
+    <string name="content_desc_open_settings">Open settings</string>
+    <string name="content_desc_open_application">Open application</string>
 </resources>

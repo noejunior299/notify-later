@@ -11,6 +11,7 @@
     <string name="nav_applications">Aplicações</string>
     <string name="nav_application_details">Detalhes da Aplicação</string>
     <string name="nav_queue">Fila</string>
+    <string name="nav_logs">Registos</string>
     <string name="nav_settings">Definições</string>
     <string name="nav_back">Voltar</string>
 
@@ -103,6 +104,7 @@
     <string name="settings_notification_access_granted">Concedido</string>
     <string name="settings_notification_access_not_granted">Não concedido</string>
     <string name="settings_notification_access_enable">Ativar acesso a notificações</string>
+    <string name="settings_notification_access_manage">Gerir acesso</string>
 
     <!-- Debug / temporary -->
     <string name="debug_title">Depuração</string>
@@ -127,10 +129,24 @@
 
     <!-- Home hero -->
     <string name="home_hero_badge">Calmo. Minimalista. Seu.</string>
+    <string name="home_hero_subtitle">Guardadas até ao momento certo.</string>
     <string name="home_logs">Logs</string>
     <string name="home_logs_description">Visão ao vivo de cada notificação capturada.</string>
+    <string name="home_watching_quietly">A vigiar em silêncio</string>
+    <string name="home_access_needed">Acesso às notificações necessário</string>
+    <string name="home_manage">Gerir</string>
+
+    <!-- Settings groups -->
+    <string name="settings_group_permissions">Permissões</string>
+    <string name="settings_group_preferences">Preferências</string>
+    <string name="settings_group_about">Sobre</string>
+
+    <!-- Logs -->
+    <string name="logs_clear">Limpar registo</string>
 
     <!-- Accessibility -->
     <string name="content_desc_app_icon">Ícone da aplicação Notify Later</string>
     <string name="content_desc_navigate_back">Voltar</string>
+    <string name="content_desc_open_settings">Abrir definições</string>
+    <string name="content_desc_open_application">Abrir aplicação</string>
 </resources>

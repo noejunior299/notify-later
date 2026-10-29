@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.Color
 val PurplePrimary = Color(0xFF6E51F7)        // roxo vibrante — identidade principal
 val PurpleDark = Color(0xFF4634C9)          // profundidade/contraste
 val PurpleMedium = Color(0xFF6347ED)        // elementos secundários
+val PurpleDeep = Color(0xFF2A1B7A)          // noite profunda (hero, superfícies escuras)
 val PurpleContainer = Color(0xFFE9E7FD)     // container claro (lilás muito claro)
 val PurpleContainerDark = Color(0xFF2E227A)  // container escuro
 val WhiteLilas = Color(0xFFF2F2FC)          // fundo suave
@@ -19,6 +20,7 @@ val SurfaceVariantLight = Color(0xFFEDE9FF)
 val OutlineLight = Color(0xFFE0DBFF)
 val OnSurfaceLight = Color(0xFF1B1B23)
 val OnSurfaceVariantLight = Color(0xFF5A5980)
+val OnYellow = Color(0xFF2B1D00)            // texto sobre amarelo
 
 // Dark
 val BackgroundDark = Color(0xFF14131F)
