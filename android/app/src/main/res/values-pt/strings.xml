@@ -35,20 +35,20 @@
     <string name="home_status_title">Está tudo tranquilo</string>
     <string name="home_status_description">As notificações serão guardadas e entregues conforme a sua agenda. Abra a aplicação apenas quando quiser ajustar.</string>
     <string name="home_applications">Aplicações</string>
-    <string name="home_applications_description">Escolha que aplicações quer adiar.</string>
+    <string name="home_applications_description">Regras por aplicação chegam em breve.</string>
     <string name="home_queue">Fila</string>
     <string name="home_queue_description">Veja as notificações a aguardar entrega.</string>
     <string name="home_settings">Definições</string>
     <string name="home_settings_description">Idioma, permissões e sobre.</string>
-    <string name="home_empty_hint">Ainda não há regras configuradas. Comece por Aplicações.</string>
+    <string name="home_empty_hint">As notificações ficam em espera por um momento e são entregues automaticamente.</string>
 
     <!-- Applications -->
     <string name="applications_title">Aplicações</string>
-    <string name="applications_description">Selecione as aplicações cujas notificações pretende receber mais tarde.</string>
+    <string name="applications_description">As regras por aplicação para escolher o que adiar chegam em breve.</string>
     <string name="applications_search_hint">Pesquisar aplicações</string>
-    <string name="applications_empty">Nenhuma aplicação encontrada.</string>
+    <string name="applications_empty">Ainda não existem regras por aplicação.</string>
     <string name="applications_count_zero">Nenhuma aplicação configurada</string>
-    <string name="applications_coming_soon">A deteção de aplicações estará disponível numa atualização futura.</string>
+    <string name="applications_coming_soon">Todas as aplicações usam atualmente o atraso global. As regras por aplicação chegam em breve.</string>
 
     <!-- Application Details -->
     <string name="application_details_title">Detalhes da Aplicação</string>
@@ -64,7 +64,7 @@
     <string name="queue_description">Notificações guardadas para entrega posterior.</string>
     <string name="queue_empty_title">A fila está vazia</string>
     <string name="queue_empty_description">Quando as notificações forem adiadas, aparecerão aqui.</string>
-    <string name="queue_coming_soon">A funcionalidade de fila estará disponível após a implementação da captura de notificações.</string>
+    <string name="queue_note">As notificações em espera são entregues automaticamente após o atraso.</string>
     <string name="queue_pending">Pendente</string>
     <string name="queue_delivered">Entregue</string>
     <string name="queue_dismissed">Dispensado</string>
@@ -114,15 +114,15 @@
     <string name="debug_spike_notice">Spike da Fase 1: as notificações originais ainda não são removidas; uma cópia é republicada apenas para validação.</string>
 
     <!-- Renderer / channel -->
-    <string name="renderer_delivered_by">Entregue pelo Notify Later</string>
+    <string name="renderer_delivered_by_app">%1$s · Entregue pelo Notify Later</string>
     <string name="notification_channel_name">Notificações adiadas</string>
     <string name="notification_channel_description">Notificações republicadas pelo Notify Later</string>
 
     <!-- Logs / History (real-time capture) -->
     <string name="logs_title">Logs</string>
-    <string name="logs_header">Capturados em tempo real</string>
-    <string name="logs_header_subtitle">Toda notificação observada aparece aqui</string>
-    <string name="logs_spike_notice">Originais nunca são removidos — ficam na fila para entrega atrasada (Fase 2).</string>
+    <string name="logs_header">Guardadas para mais tarde</string>
+    <string name="logs_header_subtitle">Notificações observadas pelo Notify Later</string>
+    <string name="logs_spike_notice">Os originais são removidos da barra e republicados após o atraso, quando as permissões estão concedidas.</string>
     <string name="logs_empty_title">Nada capturado ainda</string>
     <string name="logs_empty_description">Envie uma notificação de outro app para ver aqui.</string>
     <string name="logs_count">capturadas</string>
@@ -133,7 +133,8 @@
     <string name="home_logs">Logs</string>
     <string name="home_logs_description">Visão ao vivo de cada notificação capturada.</string>
     <string name="home_watching_quietly">A vigiar em silêncio</string>
-    <string name="home_access_needed">Acesso às notificações necessário</string>
+    <string name="home_access_needed">Permissões de notificação necessárias</string>
+    <string name="home_held_count">%1$d em espera</string>
     <string name="home_manage">Gerir</string>
 
     <!-- Settings groups -->
@@ -141,8 +142,29 @@
     <string name="settings_group_preferences">Preferências</string>
     <string name="settings_group_about">Sobre</string>
 
+    <!-- Delivery delay / posting permission -->
+    <string name="settings_delivery_delay">Atraso de entrega</string>
+    <string name="settings_delivery_delay_description">Quanto tempo as notificações esperam antes de serem entregues.</string>
+    <string name="settings_delivery_delay_dialog_title">Entregar notificações após</string>
+    <string name="delay_30_seconds">30 segundos</string>
+    <string name="delay_1_minute">1 minuto</string>
+    <string name="delay_5_minutes">5 minutos</string>
+    <string name="delay_15_minutes">15 minutos</string>
+    <string name="delay_1_hour">1 hora</string>
+    <string name="delay_seconds">%1$d segundos</string>
+    <string name="settings_post_notifications_title">Mostrar notificações adiadas</string>
+    <string name="settings_post_notifications_description">O Android precisa de permissão para mostrar as notificações entregues pelo Notify Later. Enquanto não for concedida, as notificações originais permanecem intactas.</string>
+    <string name="settings_post_notifications_enable">Permitir notificações</string>
+
+    <!-- Queue -->
+    <string name="queue_active_subtitle">As notificações em espera são entregues automaticamente, mesmo com a aplicação fechada.</string>
+    <string name="queue_delivering_now">A entregar agora…</string>
+
     <!-- Logs -->
-    <string name="logs_clear">Limpar registo</string>
+    <string name="logs_clear">Limpar histórico</string>
+    <string name="logs_expired">Expirada</string>
+    <string name="logs_due_at">Entrega às</string>
+    <string name="logs_delivered_at">Entregue às</string>
 
     <!-- Accessibility -->
     <string name="content_desc_app_icon">Ícone da aplicação Notify Later</string>

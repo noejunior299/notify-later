@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import ao.techify.notifylater.MainActivity
 import ao.techify.notifylater.core.permissions.PermissionHelper
 import ao.techify.notifylater.R
@@ -58,14 +59,17 @@ class NotificationRenderer(private val context: Context) {
         return try {
             ensureChannel()
             val appName = captured.sourceApplicationName ?: captured.sourcePackage
+            val displayTitle = captured.title?.takeIf { it.isNotBlank() } ?: appName
+            val displayText = captured.text?.takeIf { it.isNotBlank() } ?: appName
             val builder = NotificationCompat.Builder(context, NotificationHelper.CHANNEL_ID_DEFAULT)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentTitle(appName)
-                .setContentText(captured.title ?: captured.text.orEmpty())
-                .setSubText(context.getString(R.string.renderer_delivered_by))
+                .setSmallIcon(R.drawable.ic_notification)
+                .setColor(ContextCompat.getColor(context, R.color.notification_accent))
+                .setContentTitle(displayTitle)
+                .setContentText(displayText)
+                .setSubText(context.getString(R.string.renderer_delivered_by_app, appName))
                 .setAutoCancel(true)
                 .setContentIntent(contentIntent())
-            if (captured.title != null && !captured.text.isNullOrBlank()) {
+            if (!captured.text.isNullOrBlank()) {
                 builder.setStyle(
                     NotificationCompat.BigTextStyle()
                         .bigText(captured.text)

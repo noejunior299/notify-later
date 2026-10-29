@@ -42,7 +42,10 @@ private val topLevelDestinations = listOf(
  * Material 3. Ecrãs secundários (onboarding, aplicações) escondem a barra.
  */
 @Composable
-fun AppShell(navController: NavHostController) {
+fun AppShell(
+    navController: NavHostController,
+    startDestination: String = Routes.ONBOARDING
+) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
     val showBottomBar = topLevelDestinations.any { it.route == currentRoute }
@@ -86,7 +89,8 @@ fun AppShell(navController: NavHostController) {
     ) { padding ->
         AppNavHost(
             navController = navController,
-            modifier = Modifier.padding(bottom = padding.calculateBottomPadding())
+            modifier = Modifier.padding(bottom = padding.calculateBottomPadding()),
+            startDestination = startDestination
         )
     }
 }

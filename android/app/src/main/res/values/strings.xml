@@ -35,20 +35,20 @@
     <string name="home_status_title">Everything is quiet</string>
     <string name="home_status_description">Notifications will be held and delivered on your schedule. Open the app only when you want to adjust.</string>
     <string name="home_applications">Applications</string>
-    <string name="home_applications_description">Choose which apps to delay.</string>
+    <string name="home_applications_description">Per-app rules are coming soon.</string>
     <string name="home_queue">Queue</string>
     <string name="home_queue_description">See notifications waiting for delivery.</string>
     <string name="home_settings">Settings</string>
     <string name="home_settings_description">Language, permissions, and about.</string>
-    <string name="home_empty_hint">No rules configured yet. Start with Applications.</string>
+    <string name="home_empty_hint">Notifications are held for a moment, then delivered automatically.</string>
 
     <!-- Applications -->
     <string name="applications_title">Applications</string>
-    <string name="applications_description">Select apps whose notifications you want to receive later.</string>
+    <string name="applications_description">Per-app rules for choosing what to delay are coming soon.</string>
     <string name="applications_search_hint">Search applications</string>
-    <string name="applications_empty">No applications found.</string>
+    <string name="applications_empty">No per-app rules yet.</string>
     <string name="applications_count_zero">No applications configured</string>
-    <string name="applications_coming_soon">Application detection will be available in a future update.</string>
+    <string name="applications_coming_soon">All apps currently use the global delay. Per-app rules are coming soon.</string>
 
     <!-- Application Details -->
     <string name="application_details_title">Application Details</string>
@@ -64,7 +64,7 @@
     <string name="queue_description">Notifications held for later delivery.</string>
     <string name="queue_empty_title">Queue is empty</string>
     <string name="queue_empty_description">When notifications are delayed, they will appear here.</string>
-    <string name="queue_coming_soon">Queue functionality will be available after notification capture is implemented.</string>
+    <string name="queue_note">Held notifications are delivered automatically after the delay.</string>
     <string name="queue_pending">Pending</string>
     <string name="queue_delivered">Delivered</string>
     <string name="queue_dismissed">Dismissed</string>
@@ -114,15 +114,15 @@
     <string name="debug_spike_notice">Phase 1 spike: original notifications are not removed yet; a copy is re-published for validation only.</string>
 
     <!-- Renderer / channel -->
-    <string name="renderer_delivered_by">Delivered by Notify Later</string>
+    <string name="renderer_delivered_by_app">%1$s · Delivered by Notify Later</string>
     <string name="notification_channel_name">Delayed notifications</string>
     <string name="notification_channel_description">Notifications re-published by Notify Later</string>
 
     <!-- Logs / History (real-time capture) -->
     <string name="logs_title">Logs</string>
-    <string name="logs_header">Captured in real time</string>
-    <string name="logs_header_subtitle">Every notification observed by the listener appears here</string>
-    <string name="logs_spike_notice">Originals are never removed — only queued for delayed delivery (Phase 2).</string>
+    <string name="logs_header">Held for later</string>
+    <string name="logs_header_subtitle">Notifications observed by Notify Later</string>
+    <string name="logs_spike_notice">Originals are removed from the shade and re-posted after the delay, once permissions are granted.</string>
     <string name="logs_empty_title">Nothing captured yet</string>
     <string name="logs_empty_description">Send a notification from another app to see it here.</string>
     <string name="logs_count">captured</string>
@@ -133,7 +133,8 @@
     <string name="home_logs">Logs</string>
     <string name="home_logs_description">Live view of every notification captured.</string>
     <string name="home_watching_quietly">Watching quietly</string>
-    <string name="home_access_needed">Notification access needed</string>
+    <string name="home_access_needed">Notification permissions needed</string>
+    <string name="home_held_count">%1$d held</string>
     <string name="home_manage">Manage</string>
 
     <!-- Settings groups -->
@@ -141,8 +142,29 @@
     <string name="settings_group_preferences">Preferences</string>
     <string name="settings_group_about">About</string>
 
+    <!-- Delivery delay / posting permission -->
+    <string name="settings_delivery_delay">Delivery delay</string>
+    <string name="settings_delivery_delay_description">How long notifications wait before they are delivered.</string>
+    <string name="settings_delivery_delay_dialog_title">Deliver notifications after</string>
+    <string name="delay_30_seconds">30 seconds</string>
+    <string name="delay_1_minute">1 minute</string>
+    <string name="delay_5_minutes">5 minutes</string>
+    <string name="delay_15_minutes">15 minutes</string>
+    <string name="delay_1_hour">1 hour</string>
+    <string name="delay_seconds">%1$d seconds</string>
+    <string name="settings_post_notifications_title">Show delayed notifications</string>
+    <string name="settings_post_notifications_description">Android needs permission to display the notifications Notify Later delivers. Until it is granted, original notifications are left untouched.</string>
+    <string name="settings_post_notifications_enable">Allow notifications</string>
+
+    <!-- Queue -->
+    <string name="queue_active_subtitle">Held notifications are delivered automatically, even if the app is closed.</string>
+    <string name="queue_delivering_now">Delivering now…</string>
+
     <!-- Logs -->
-    <string name="logs_clear">Clear log</string>
+    <string name="logs_clear">Clear history</string>
+    <string name="logs_expired">Expired</string>
+    <string name="logs_due_at">Due at</string>
+    <string name="logs_delivered_at">Delivered at</string>
 
     <!-- Accessibility -->
     <string name="content_desc_app_icon">Notify Later app icon</string>

@@ -25,7 +25,9 @@ class NotificationCaptureTest {
         timestamp: Long = 1_700_000_000_000L,
         key: String = "0|com.example.chat|1|null|1000",
         category: String? = "msg",
-        priority: Int = 0
+        priority: Int = 0,
+        isOngoing: Boolean = false,
+        isGroupSummary: Boolean = false
     ) = RawNotification(
         sourcePackage = sourcePackage,
         applicationLabel = label,
@@ -35,7 +37,9 @@ class NotificationCaptureTest {
         timestamp = timestamp,
         notificationKey = key,
         category = category,
-        priority = priority
+        priority = priority,
+        isOngoing = isOngoing,
+        isGroupSummary = isGroupSummary
     )
 
     // --- title and text ---
@@ -183,6 +187,42 @@ class NotificationCaptureTest {
     @Test
     fun `zero timestamp prevents capture`() {
         assertNull(NotificationCapture.capture(raw(timestamp = 0L), selfPackage))
+    }
+
+    @Test
+    fun `ongoing notifications are left untouched`() {
+        assertNull(NotificationCapture.capture(raw(isOngoing = true), selfPackage))
+    }
+
+    @Test
+    fun `group summaries are left untouched`() {
+        assertNull(NotificationCapture.capture(raw(isGroupSummary = true), selfPackage))
+    }
+
+    @Test
+    fun `calls alarms and services are left untouched`() {
+        listOf("call", "alarm", "service", "CALL").forEach { category ->
+            assertNull(
+                "category $category should not be delayed",
+                NotificationCapture.capture(raw(category = category), selfPackage)
+            )
+        }
+    }
+
+    @Test
+    fun `normal message categories are still captured`() {
+        assertNotNull(NotificationCapture.capture(raw(category = "msg"), selfPackage))
+        assertNotNull(NotificationCapture.capture(raw(category = null), selfPackage))
+    }
+
+    @Test
+    fun `system chrome notifications are left untouched`() {
+        listOf("android", "com.android.systemui").forEach { pkg ->
+            assertNull(
+                "$pkg notifications should not be delayed",
+                NotificationCapture.capture(raw(sourcePackage = pkg), selfPackage)
+            )
+        }
     }
 
     @Test

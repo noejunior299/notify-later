@@ -1,7 +1,9 @@
 package ao.techify.notifylater.feature.settings
 
+import android.Manifest
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -20,28 +22,42 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.NotificationsActive
+import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material.icons.rounded.VerifiedUser
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import ao.techify.notifylater.NotifyLaterApplicationHolder
 import ao.techify.notifylater.R
 import ao.techify.notifylater.core.notifications.NotificationAccess
+import ao.techify.notifylater.core.permissions.PermissionHelper
+import ao.techify.notifylater.core.settings.AppSettings
 import ao.techify.notifylater.ui.components.IconBadge
 import ao.techify.notifylater.ui.components.NotifyLogo
 import ao.techify.notifylater.ui.components.NotifyScaffold
@@ -50,15 +66,46 @@ import ao.techify.notifylater.ui.components.SectionHeading
 import ao.techify.notifylater.ui.components.SoftCard
 import ao.techify.notifylater.ui.theme.OnYellow
 import ao.techify.notifylater.ui.theme.YellowClock
+import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsScreen(
     onNavigateBack: (() -> Unit)? = null,
     onNavigateToLogs: () -> Unit = {}
 ) {
-    val accessGranted = NotificationAccess.isEnabled(LocalContext.current)
+    val context = LocalContext.current
+    val app = context.applicationContext as NotifyLaterApplicationHolder
+    val settings by app.settingsRepository.settings.collectAsState(initial = AppSettings())
+    val scope = rememberCoroutineScope()
 
-    NotifyScaffold(title = stringResource(R.string.settings_title), onNavigateBack = onNavigateBack) { padding ->
+    var accessGranted by remember { mutableStateOf(NotificationAccess.isEnabled(context)) }
+    var postGranted by remember {
+        mutableStateOf(PermissionHelper.hasPostNotificationsPermission(context))
+    }
+    var showDelayDialog by remember { mutableStateOf(false) }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner, context) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                accessGranted = NotificationAccess.isEnabled(context)
+                postGranted = PermissionHelper.hasPostNotificationsPermission(context)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    val postPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {
+        postGranted = PermissionHelper.hasPostNotificationsPermission(context)
+    }
+
+    NotifyScaffold(
+        title = stringResource(R.string.settings_title),
+        onNavigateBack = onNavigateBack
+    ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -69,12 +116,52 @@ fun SettingsScreen(
             Spacer(Modifier.height(8.dp))
             SectionHeading(stringResource(R.string.settings_group_permissions))
             Spacer(Modifier.height(8.dp))
-            NotificationAccessCard(accessGranted = accessGranted)
+            PermissionCard(
+                icon = Icons.Rounded.NotificationsActive,
+                title = stringResource(R.string.settings_notification_access_title),
+                description = stringResource(R.string.settings_notification_access_description),
+                granted = accessGranted,
+                actionLabel = if (accessGranted) {
+                    stringResource(R.string.settings_notification_access_manage)
+                } else {
+                    stringResource(R.string.settings_notification_access_enable)
+                },
+                onAction = {
+                    runCatching { context.startActivity(NotificationAccess.settingsIntent()) }
+                }
+            )
+            if (PermissionHelper.isPostNotificationsRequired() && !postGranted) {
+                Spacer(Modifier.height(10.dp))
+                PermissionCard(
+                    icon = Icons.Rounded.NotificationsActive,
+                    title = stringResource(R.string.settings_post_notifications_title),
+                    description = stringResource(R.string.settings_post_notifications_description),
+                    granted = false,
+                    actionLabel = stringResource(R.string.settings_post_notifications_enable),
+                    onAction = {
+                        postPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    }
+                )
+            }
 
             Spacer(Modifier.height(22.dp))
             SectionHeading(stringResource(R.string.settings_group_preferences))
             Spacer(Modifier.height(8.dp))
             SettingsGroup {
+                SettingsRow(
+                    icon = Icons.Rounded.Schedule,
+                    title = stringResource(R.string.settings_delivery_delay),
+                    description = stringResource(R.string.settings_delivery_delay_description),
+                    trailing = {
+                        Text(
+                            delayLabel(settings.deliveryDelayMillis),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    },
+                    onClick = { showDelayDialog = true }
+                )
+                SettingsDivider()
                 SettingsRow(
                     icon = Icons.Rounded.VerifiedUser,
                     title = stringResource(R.string.settings_language),
@@ -113,6 +200,67 @@ fun SettingsScreen(
             Spacer(Modifier.height(24.dp))
         }
     }
+
+    if (showDelayDialog) {
+        DelayDialog(
+            selectedDelayMillis = settings.deliveryDelayMillis,
+            onSelect = { delayMillis ->
+                scope.launch { app.settingsRepository.setDeliveryDelayMillis(delayMillis) }
+                showDelayDialog = false
+            },
+            onDismiss = { showDelayDialog = false }
+        )
+    }
+}
+
+@Composable
+private fun DelayDialog(
+    selectedDelayMillis: Long,
+    onSelect: (Long) -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.settings_delivery_delay_dialog_title)) },
+        text = {
+            Column {
+                AppSettings.DELAY_OPTIONS_MILLIS.forEach { delayMillis ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onSelect(delayMillis) }
+                            .padding(vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = selectedDelayMillis == delayMillis,
+                            onClick = null
+                        )
+                        Spacer(Modifier.width(12.dp))
+                        Text(
+                            delayLabel(delayMillis),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.common_done))
+            }
+        }
+    )
+}
+
+@Composable
+private fun delayLabel(delayMillis: Long): String = when (delayMillis) {
+    30_000L -> stringResource(R.string.delay_30_seconds)
+    60_000L -> stringResource(R.string.delay_1_minute)
+    5 * 60_000L -> stringResource(R.string.delay_5_minutes)
+    15 * 60_000L -> stringResource(R.string.delay_15_minutes)
+    60 * 60_000L -> stringResource(R.string.delay_1_hour)
+    else -> stringResource(R.string.delay_seconds, (delayMillis / 1_000L).toInt())
 }
 
 @Composable
@@ -129,58 +277,64 @@ private fun LogsCountBadge() {
 }
 
 @Composable
-private fun NotificationAccessCard(accessGranted: Boolean) {
-    val context = LocalContext.current
+private fun PermissionCard(
+    icon: ImageVector,
+    title: String,
+    description: String,
+    granted: Boolean,
+    actionLabel: String,
+    onAction: () -> Unit
+) {
     SoftCard(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconBadge(
-                    icon = Icons.Rounded.NotificationsActive,
-                    containerColor = if (accessGranted) MaterialTheme.colorScheme.primaryContainer
+                    icon = icon,
+                    containerColor = if (granted) MaterialTheme.colorScheme.primaryContainer
                     else MaterialTheme.colorScheme.tertiaryContainer,
-                    contentColor = if (accessGranted) MaterialTheme.colorScheme.primary
+                    contentColor = if (granted) MaterialTheme.colorScheme.primary
                     else MaterialTheme.colorScheme.onTertiaryContainer,
                     size = 44.dp,
                     iconSize = 22.dp
                 )
                 Spacer(Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        stringResource(R.string.settings_notification_access_title),
-                        style = MaterialTheme.typography.titleMedium
-                    )
+                    Text(title, style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.height(3.dp))
                     PillBadge(
-                        text = if (accessGranted) stringResource(R.string.settings_notification_access_granted)
-                        else stringResource(R.string.settings_notification_access_not_granted),
-                        containerColor = if (accessGranted) MaterialTheme.colorScheme.primaryContainer
+                        text = if (granted) {
+                            stringResource(R.string.settings_notification_access_granted)
+                        } else {
+                            stringResource(R.string.settings_notification_access_not_granted)
+                        },
+                        containerColor = if (granted) MaterialTheme.colorScheme.primaryContainer
                         else MaterialTheme.colorScheme.tertiaryContainer,
-                        contentColor = if (accessGranted) MaterialTheme.colorScheme.onPrimaryContainer
+                        contentColor = if (granted) MaterialTheme.colorScheme.onPrimaryContainer
                         else MaterialTheme.colorScheme.onTertiaryContainer
                     )
                 }
             }
             Spacer(Modifier.height(12.dp))
             Text(
-                stringResource(R.string.settings_notification_access_description),
+                description,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(Modifier.height(14.dp))
-            if (accessGranted) {
+            if (granted) {
                 OutlinedButton(
-                    onClick = { runCatching { context.startActivity(NotificationAccess.settingsIntent()) } },
+                    onClick = onAction,
                     shape = RoundedCornerShape(14.dp)
                 ) {
-                    Text(stringResource(R.string.settings_notification_access_manage))
+                    Text(actionLabel)
                 }
             } else {
                 Button(
-                    onClick = { runCatching { context.startActivity(NotificationAccess.settingsIntent()) } },
+                    onClick = onAction,
                     shape = RoundedCornerShape(14.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
-                    Text(stringResource(R.string.settings_notification_access_enable))
+                    Text(actionLabel)
                 }
             }
         }

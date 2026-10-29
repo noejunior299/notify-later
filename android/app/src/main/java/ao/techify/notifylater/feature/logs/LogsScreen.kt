@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CloudOff
 import androidx.compose.material.icons.rounded.Notifications
+import androidx.compose.material.icons.rounded.NotificationsPaused
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -27,15 +28,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import ao.techify.notifylater.NotifyLaterApplicationHolder
 import ao.techify.notifylater.R
+import ao.techify.notifylater.domain.model.NotificationStatus
 import ao.techify.notifylater.ui.components.BellWithClockBadge
 import ao.techify.notifylater.ui.components.InitialAvatar
 import ao.techify.notifylater.ui.components.NotifyScaffold
+import ao.techify.notifylater.ui.components.PillBadge
 import ao.techify.notifylater.ui.components.QuietEmptyState
 import ao.techify.notifylater.ui.components.SoftCard
 import ao.techify.notifylater.ui.components.TimeBadge
@@ -73,7 +77,7 @@ fun LogsScreen(onNavigateBack: (() -> Unit)? = null) {
                     )
                 }
                 if (captured.isNotEmpty()) {
-                    TextButton(onClick = { scope.launch { app.notificationRepository.clear() } }) {
+                    TextButton(onClick = { scope.launch { app.notificationRepository.clearCompleted() } }) {
                         Text(stringResource(R.string.logs_clear))
                     }
                 }
@@ -88,7 +92,7 @@ fun LogsScreen(onNavigateBack: (() -> Unit)? = null) {
                     verticalArrangement = Arrangement.Center
                 ) {
                     QuietEmptyState(
-                        icon = Icons.Rounded.Notifications,
+                        icon = Icons.Rounded.NotificationsPaused,
                         title = stringResource(R.string.logs_empty_title),
                         description = stringResource(R.string.logs_empty_description)
                     )
@@ -167,6 +171,33 @@ fun LogsScreen(onNavigateBack: (() -> Unit)? = null) {
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis
                                     )
+                                    Spacer(Modifier.height(6.dp))
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        val statusColors = statusColors(n.status)
+                                        PillBadge(
+                                            text = statusLabel(n.status),
+                                            containerColor = statusColors.first,
+                                            contentColor = statusColors.second
+                                        )
+                                        val statusTime = when (n.status) {
+                                            NotificationStatus.DELIVERED -> n.deliveredAt
+                                            NotificationStatus.PENDING -> n.dueAt
+                                            else -> null
+                                        }
+                                        if (statusTime != null) {
+                                            Spacer(Modifier.width(8.dp))
+                                            Text(
+                                                text = (if (n.status == NotificationStatus.DELIVERED) {
+                                                    stringResource(R.string.logs_delivered_at)
+                                                } else {
+                                                    stringResource(R.string.logs_due_at)
+                                                }) + " " + DateFormat.getTimeInstance(DateFormat.SHORT)
+                                                    .format(Date(statusTime)),
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -175,5 +206,24 @@ fun LogsScreen(onNavigateBack: (() -> Unit)? = null) {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun statusLabel(status: NotificationStatus): String = when (status) {
+    NotificationStatus.PENDING -> stringResource(R.string.queue_pending)
+    NotificationStatus.DELIVERED -> stringResource(R.string.queue_delivered)
+    NotificationStatus.DISMISSED -> stringResource(R.string.queue_dismissed)
+    NotificationStatus.EXPIRED -> stringResource(R.string.logs_expired)
+}
+
+@Composable
+private fun statusColors(status: NotificationStatus): Pair<Color, Color> {
+    val scheme = MaterialTheme.colorScheme
+    return when (status) {
+        NotificationStatus.PENDING -> scheme.tertiaryContainer to scheme.onTertiaryContainer
+        NotificationStatus.DELIVERED -> scheme.primaryContainer to scheme.onPrimaryContainer
+        NotificationStatus.DISMISSED -> scheme.surfaceVariant to scheme.onSurfaceVariant
+        NotificationStatus.EXPIRED -> scheme.surfaceVariant to scheme.onSurfaceVariant
     }
 }

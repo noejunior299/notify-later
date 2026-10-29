@@ -200,7 +200,7 @@ fun NotifyLogo(modifier: Modifier = Modifier, size: Dp = 36.dp) {
  */
 @Composable
 fun QuietHero(
-    capturedCount: Int,
+    heldCount: Int,
     accessGranted: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -273,8 +273,8 @@ fun QuietHero(
                     else stringResource(R.string.home_access_needed),
                     dotColor = if (accessGranted) YellowClock else onHero.copy(alpha = 0.55f)
                 )
-                if (capturedCount > 0) {
-                    HeroPill(text = "$capturedCount ${stringResource(R.string.logs_count)}")
+                if (heldCount > 0) {
+                    HeroPill(text = stringResource(R.string.home_held_count, heldCount))
                 }
             }
         }

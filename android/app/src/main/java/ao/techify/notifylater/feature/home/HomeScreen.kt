@@ -37,6 +37,8 @@ import androidx.compose.ui.unit.dp
 import ao.techify.notifylater.NotifyLaterApplicationHolder
 import ao.techify.notifylater.R
 import ao.techify.notifylater.core.notifications.NotificationAccess
+import ao.techify.notifylater.core.permissions.PermissionHelper
+import ao.techify.notifylater.domain.model.NotificationStatus
 import ao.techify.notifylater.ui.components.ActionTile
 import ao.techify.notifylater.ui.components.NotifyLogo
 import ao.techify.notifylater.ui.components.QuietHero
@@ -52,7 +54,9 @@ fun HomeScreen(
     val context = LocalContext.current
     val app = context.applicationContext as NotifyLaterApplicationHolder
     val captured by app.notificationRepository.notifications.collectAsState(initial = emptyList())
-    val accessGranted = NotificationAccess.isEnabled(context)
+    val held = captured.filter { it.status == NotificationStatus.PENDING }
+    val accessGranted = NotificationAccess.isEnabled(context) &&
+        PermissionHelper.hasPostNotificationsPermission(context)
 
     Column(
         modifier = Modifier
@@ -81,7 +85,7 @@ fun HomeScreen(
         }
 
         Spacer(Modifier.height(20.dp))
-        QuietHero(capturedCount = captured.size, accessGranted = accessGranted)
+        QuietHero(heldCount = held.size, accessGranted = accessGranted)
 
         Spacer(Modifier.height(26.dp))
         SectionHeading(stringResource(R.string.home_manage))

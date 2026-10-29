@@ -16,7 +16,9 @@ data class RawNotification(
     val timestamp: Long = 0L,
     val notificationKey: String = "",
     val category: String? = null,
-    val priority: Int = 0
+    val priority: Int = 0,
+    val isOngoing: Boolean = false,
+    val isGroupSummary: Boolean = false
 )
 
 /**
@@ -32,14 +34,28 @@ object NotificationCapture {
     const val MAX_TITLE_LENGTH = 200
     const val MAX_TEXT_LENGTH = 1000
 
+    /**
+     * Calls, alarms, and foreground services must never be removed from the
+     * shade: delaying them could hide something urgent or break an active
+     * service. They are left untouched.
+     */
+    private val IGNORED_CATEGORIES = setOf("call", "alarm", "service")
+
+    /** System chrome (SD card, screen lock, USB) must stay in the shade. */
+    private val IGNORED_PACKAGES = setOf("android", "com.android.systemui")
+
     /** Notifications posted by Notify Later itself must never be captured. */
     fun isSelfNotification(sourcePackage: String, selfPackage: String): Boolean =
         sourcePackage == selfPackage
 
     fun shouldCapture(raw: RawNotification, selfPackage: String): Boolean =
         !isSelfNotification(raw.sourcePackage, selfPackage) &&
+            raw.sourcePackage !in IGNORED_PACKAGES &&
             raw.notificationKey.isNotBlank() &&
-            raw.timestamp > 0L
+            raw.timestamp > 0L &&
+            !raw.isOngoing &&
+            !raw.isGroupSummary &&
+            raw.category?.lowercase() !in IGNORED_CATEGORIES
 
     /** Trims and length-limits text; blank input becomes null. */
     fun sanitizeText(raw: CharSequence?, maxLength: Int): String? {

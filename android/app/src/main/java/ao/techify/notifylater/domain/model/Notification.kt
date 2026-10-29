@@ -23,5 +23,7 @@ data class Notification(
     val originalNotificationKey: String,
     val category: String? = null,
     val priority: Int = 0,
-    val status: NotificationStatus = NotificationStatus.PENDING
+    val status: NotificationStatus = NotificationStatus.PENDING,
+    val dueAt: Long? = null,
+    val deliveredAt: Long? = null
 )

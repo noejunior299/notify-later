@@ -1,25 +1,29 @@
 package ao.techify.notifylater.core.notifications
 
 import ao.techify.notifylater.NotifyLaterApplicationHolder
+import ao.techify.notifylater.domain.model.NotificationStatus
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 /**
- * Phase 1 spike: observes notifications from other apps, captures minimal
- * metadata, stores it in-memory for the debug screen, and re-publishes a
- * Notify Later copy.
+ * Observes notifications from other apps and holds them for later delivery.
  *
- * SAFETY: this spike NEVER cancels the original notification. The original
- * stays visible until we have reliable reproduction + persistence (Phase 2).
- * If anything fails here, the original notification remains untouched.
+ * Pipeline:
+ * 1. Capture minimal, sanitized metadata.
+ * 2. Persist the notification with a due time (capture time + user delay).
+ * 3. Schedule a WorkManager job for that due time.
+ * 4. Only then cancel the original system notification.
  *
- * This class is an adapter/orchestrator only; logic lives in
- * [NotificationCapture] (pure), [NotificationRepository] and
- * [NotificationRenderer].
+ * Safety:
+ * - If POST_NOTIFICATIONS is missing, the original is left untouched.
+ * - If persistence or scheduling fails, the original is left untouched.
+ * - Calls, alarms, ongoing notifications, and group summaries are ignored.
+ * - The listener's own re-published notifications are filtered out.
  */
 class NotifyLaterNotificationListener : NotificationListenerService() {
 
@@ -31,8 +35,7 @@ class NotifyLaterNotificationListener : NotificationListenerService() {
     override fun onListenerConnected() {
         super.onListenerConnected()
         // Snapshot of currently active notifications. These keys are suppressed
-        // for the whole session so pre-existing notifications are never
-        // re-published by the Phase 1 spike.
+        // for the whole session so pre-existing notifications are never captured.
         val activeKeys: List<String> = try {
             activeNotifications?.mapNotNull { it.key }.orEmpty()
         } catch (t: Throwable) {
@@ -54,7 +57,7 @@ class NotifyLaterNotificationListener : NotificationListenerService() {
                     return
                 }
                 NotificationSessionFilter.Decision.IgnoreInitial -> {
-                    // Active before the listener connected: never re-published.
+                    // Active before the listener connected: never captured.
                     CaptureLogger.d(TAG, "ignored initial active notification")
                     return
                 }
@@ -65,7 +68,9 @@ class NotifyLaterNotificationListener : NotificationListenerService() {
                 }
                 NotificationSessionFilter.Decision.Process -> Unit
             }
-            val extras = sbn.notification?.extras
+
+            val notification = sbn.notification
+            val extras = notification?.extras
             val raw = RawNotification(
                 sourcePackage = sbn.packageName,
                 applicationLabel = resolveApplicationLabel(sbn.packageName),
@@ -74,32 +79,56 @@ class NotifyLaterNotificationListener : NotificationListenerService() {
                 text = extras?.getCharSequence(android.app.Notification.EXTRA_TEXT),
                 timestamp = sbn.postTime,
                 notificationKey = sbn.key ?: "",
-                category = sbn.notification?.category,
-                priority = sbn.notification?.priority ?: 0
+                category = notification?.category,
+                priority = notification?.priority ?: 0,
+                isOngoing = sbn.isOngoing,
+                isGroupSummary = notification != null &&
+                    (notification.flags and android.app.Notification.FLAG_GROUP_SUMMARY) != 0
             )
             val captured = NotificationCapture.capture(raw, selfPackage)
                 ?: return // filtered or invalid: original untouched
+
+            if (!NotificationRenderer(applicationContext).canPost()) {
+                CaptureLogger.w(
+                    TAG,
+                    "POST_NOTIFICATIONS missing; leaving original notification untouched"
+                )
+                return
+            }
 
             CaptureLogger.d(
                 TAG,
                 "captured package=${raw.sourcePackage} key=${raw.notificationKey}"
             )
 
-            // Phase 1 safety: original notification is NEVER cancelled and is NOT
-            // automatically re-published. Captured notifications are queued in
-            // the in-memory repository and will only be delivered when the
-            // user-configured delay expires (Phase 2 scheduler). This prevents
-            // the spike from spamming every incoming notification.
+            val app = applicationContext as NotifyLaterApplicationHolder
+            val key = sbn.key
             scope.launch {
-                runCatching { repository().save(captured) }
-                    .onFailure { CaptureLogger.w(TAG, "save failed", it) }
-                CaptureLogger.d(
-                    TAG,
-                    "captured notification queued for delayed delivery (not published yet) package=${raw.sourcePackage}"
-                )
-                // Rendering is deferred to the future delay engine:
-                // renderer().render(captured) will be called only after the
-                // DelayPolicy / DeliverySchedule elapses. See Phase 2.
+                runCatching {
+                    val delay = app.settingsRepository.settings.first().deliveryDelayMillis
+                    val dueAt = System.currentTimeMillis() + delay
+                    val stored = app.notificationRepository.save(captured.copy(dueAt = dueAt))
+                    app.notificationScheduler.schedule(stored)
+
+                    runCatching { cancelNotification(key) }
+                        .onFailure { error ->
+                            // Avoid a duplicate later if the system refused to
+                            // cancel the original. Keep the item out of the queue.
+                            app.notificationScheduler.cancel(stored.id)
+                            app.notificationRepository.update(
+                                stored.copy(status = NotificationStatus.DISMISSED)
+                            )
+                            throw error
+                        }
+
+                    CaptureLogger.d(
+                        TAG,
+                        "held notification id=${stored.id} dueAt=${stored.dueAt} " +
+                            "package=${raw.sourcePackage}"
+                    )
+                }.onFailure {
+                    CaptureLogger.w(TAG, "capture failed; original notification remains", it)
+                }
             }
         } catch (t: Throwable) {
             // Fail safe: any unexpected error leaves the original notification alone.
@@ -108,7 +137,7 @@ class NotifyLaterNotificationListener : NotificationListenerService() {
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
-        // Not used in the spike.
+        // Delivery and dismissal are tracked by the repository/worker.
     }
 
     override fun onDestroy() {
@@ -123,10 +152,6 @@ class NotifyLaterNotificationListener : NotificationListenerService() {
     } catch (_: Exception) {
         null
     }
-
-    private fun repository() = (applicationContext as NotifyLaterApplicationHolder).notificationRepository
-
-    private fun renderer() = NotificationRenderer(applicationContext)
 
     companion object {
         private const val TAG = "NotifyLaterListener"

@@ -5,11 +5,13 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import ao.techify.notifylater.NotifyLaterApplicationHolder
 import ao.techify.notifylater.feature.applications.ApplicationDetailsScreen
 import ao.techify.notifylater.feature.applications.ApplicationsScreen
 import ao.techify.notifylater.feature.home.HomeScreen
@@ -24,6 +26,8 @@ fun AppNavHost(
     modifier: Modifier = Modifier,
     startDestination: String = Routes.ONBOARDING
 ) {
+    val context = LocalContext.current
+
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -34,6 +38,8 @@ fun AppNavHost(
         composable(Routes.ONBOARDING) {
             OnboardingScreen(
                 onComplete = {
+                    (context.applicationContext as NotifyLaterApplicationHolder)
+                        .completeOnboarding()
                     navController.navigate(Routes.HOME) {
                         popUpTo(Routes.ONBOARDING) { inclusive = true }
                     }
