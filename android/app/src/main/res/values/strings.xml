@@ -35,7 +35,7 @@
     <string name="home_status_title">Everything is quiet</string>
     <string name="home_status_description">Notifications will be held and delivered on your schedule. Open the app only when you want to adjust.</string>
     <string name="home_applications">Applications</string>
-    <string name="home_applications_description">Per-app rules are coming soon.</string>
+    <string name="home_applications_description">Pick a different delay for each app.</string>
     <string name="home_queue">Queue</string>
     <string name="home_queue_description">See notifications waiting for delivery.</string>
     <string name="home_settings">Settings</string>
@@ -44,20 +44,23 @@
 
     <!-- Applications -->
     <string name="applications_title">Applications</string>
-    <string name="applications_description">Per-app rules for choosing what to delay are coming soon.</string>
+    <string name="applications_description">Choose how long each app’s notifications are held before they reach you.</string>
     <string name="applications_search_hint">Search applications</string>
-    <string name="applications_empty">No per-app rules yet.</string>
-    <string name="applications_count_zero">No applications configured</string>
-    <string name="applications_coming_soon">All apps currently use the global delay. Per-app rules are coming soon.</string>
+    <string name="applications_empty">No launchable apps found</string>
+    <string name="applications_empty_description">Apps installed on this device will appear here so you can give each one its own delay.</string>
+    <string name="applications_loading">Loading applications…</string>
+    <string name="applications_count_zero">All apps use the global delay</string>
+    <string name="applications_count">%1$d apps with a custom delay</string>
+    <string name="applications_count_one">%1$d app with a custom delay</string>
+    <string name="applications_global_default">Global default</string>
 
     <!-- Application Details -->
     <string name="application_details_title">Application Details</string>
     <string name="application_details_package">Package</string>
-    <string name="application_details_status">Status</string>
     <string name="application_details_delay">Delay</string>
-    <string name="application_details_not_configured">Not configured</string>
-    <string name="application_details_package_value">%1$s: %2$s</string>
-    <string name="application_details_coming_soon">Rule configuration coming soon.</string>
+    <string name="application_details_delay_description">Notifications from this app are held for the selected delay, then delivered automatically.</string>
+    <string name="application_details_use_global">Use global default (%1$s)</string>
+    <string name="application_details_current_rule">Current: %1$s</string>
 
     <!-- Queue -->
     <string name="queue_title">Queue</string>
@@ -150,7 +153,9 @@
     <string name="delay_1_minute">1 minute</string>
     <string name="delay_5_minutes">5 minutes</string>
     <string name="delay_15_minutes">15 minutes</string>
+    <string name="delay_30_minutes">30 minutes</string>
     <string name="delay_1_hour">1 hour</string>
+    <string name="delay_2_hours">2 hours</string>
     <string name="delay_seconds">%1$d seconds</string>
     <string name="settings_post_notifications_title">Show delayed notifications</string>
     <string name="settings_post_notifications_description">Android needs permission to display the notifications Notify Later delivers. Until it is granted, original notifications are left untouched.</string>

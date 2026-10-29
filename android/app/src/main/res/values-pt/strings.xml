@@ -35,7 +35,7 @@
     <string name="home_status_title">Está tudo tranquilo</string>
     <string name="home_status_description">As notificações serão guardadas e entregues conforme a sua agenda. Abra a aplicação apenas quando quiser ajustar.</string>
     <string name="home_applications">Aplicações</string>
-    <string name="home_applications_description">Regras por aplicação chegam em breve.</string>
+    <string name="home_applications_description">Escolha um atraso diferente para cada app.</string>
     <string name="home_queue">Fila</string>
     <string name="home_queue_description">Veja as notificações a aguardar entrega.</string>
     <string name="home_settings">Definições</string>
@@ -44,20 +44,23 @@
 
     <!-- Applications -->
     <string name="applications_title">Aplicações</string>
-    <string name="applications_description">As regras por aplicação para escolher o que adiar chegam em breve.</string>
+    <string name="applications_description">Escolha quanto tempo as notificações de cada app ficam retidas antes de te chegarem.</string>
     <string name="applications_search_hint">Pesquisar aplicações</string>
-    <string name="applications_empty">Ainda não existem regras por aplicação.</string>
-    <string name="applications_count_zero">Nenhuma aplicação configurada</string>
-    <string name="applications_coming_soon">Todas as aplicações usam atualmente o atraso global. As regras por aplicação chegam em breve.</string>
+    <string name="applications_empty">Nenhuma aplicação encontrada</string>
+    <string name="applications_empty_description">As aplicações instaladas neste dispositivo aparecem aqui para poderes dar a cada uma o seu atraso.</string>
+    <string name="applications_loading">A carregar aplicações…</string>
+    <string name="applications_count_zero">Todas as apps usam o atraso global</string>
+    <string name="applications_count">%1$d apps com atraso próprio</string>
+    <string name="applications_count_one">%1$d app com atraso próprio</string>
+    <string name="applications_global_default">Padrão global</string>
 
     <!-- Application Details -->
     <string name="application_details_title">Detalhes da Aplicação</string>
     <string name="application_details_package">Pacote</string>
-    <string name="application_details_status">Estado</string>
     <string name="application_details_delay">Atraso</string>
-    <string name="application_details_not_configured">Não configurado</string>
-    <string name="application_details_package_value">%1$s: %2$s</string>
-    <string name="application_details_coming_soon">A configuração de regras estará disponível em breve.</string>
+    <string name="application_details_delay_description">As notificações desta aplicação ficam retidas durante o atraso escolhido e depois são entregues automaticamente.</string>
+    <string name="application_details_use_global">Usar padrão global (%1$s)</string>
+    <string name="application_details_current_rule">Atual: %1$s</string>
 
     <!-- Queue -->
     <string name="queue_title">Fila</string>
@@ -150,7 +153,9 @@
     <string name="delay_1_minute">1 minuto</string>
     <string name="delay_5_minutes">5 minutos</string>
     <string name="delay_15_minutes">15 minutos</string>
+    <string name="delay_30_minutes">30 minutos</string>
     <string name="delay_1_hour">1 hora</string>
+    <string name="delay_2_hours">2 horas</string>
     <string name="delay_seconds">%1$d segundos</string>
     <string name="settings_post_notifications_title">Mostrar notificações adiadas</string>
     <string name="settings_post_notifications_description">O Android precisa de permissão para mostrar as notificações entregues pelo Notify Later. Enquanto não for concedida, as notificações originais permanecem intactas.</string>

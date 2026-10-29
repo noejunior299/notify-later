@@ -1,6 +1,7 @@
 package ao.techify.notifylater.core.notifications
 
 import ao.techify.notifylater.NotifyLaterApplicationHolder
+import ao.techify.notifylater.core.settings.AppDelayRules
 import ao.techify.notifylater.domain.model.NotificationStatus
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
@@ -15,9 +16,10 @@ import kotlinx.coroutines.launch
  *
  * Pipeline:
  * 1. Capture minimal, sanitized metadata.
- * 2. Persist the notification with a due time (capture time + user delay).
- * 3. Schedule a WorkManager job for that due time.
- * 4. Only then cancel the original system notification.
+ * 2. Resolve the delay: per-app rule first, global setting as fallback.
+ * 3. Persist the notification with a due time (capture time + resolved delay).
+ * 4. Schedule a WorkManager job for that due time.
+ * 5. Only then cancel the original system notification.
  *
  * Safety:
  * - If POST_NOTIFICATIONS is missing, the original is left untouched.
@@ -105,7 +107,15 @@ class NotifyLaterNotificationListener : NotificationListenerService() {
             val key = sbn.key
             scope.launch {
                 runCatching {
-                    val delay = app.settingsRepository.settings.first().deliveryDelayMillis
+                    val globalDelay =
+                        app.settingsRepository.settings.first().deliveryDelayMillis
+                    // Per-app rule wins over the global delay (WhatsApp 30 min,
+                    // Facebook 1 h, Phone 5 min, …); no rule falls back to global.
+                    val delay = AppDelayRules.resolve(
+                        rules = app.appDelayRulesRepository.rules.first(),
+                        packageName = raw.sourcePackage,
+                        globalDelayMillis = globalDelay
+                    )
                     val dueAt = System.currentTimeMillis() + delay
                     val stored = app.notificationRepository.save(captured.copy(dueAt = dueAt))
                     app.notificationScheduler.schedule(stored)

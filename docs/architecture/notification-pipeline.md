@@ -54,6 +54,8 @@ Each notification moves through `PENDING` → `DELIVERED` (or `DISMISSED` / `EXP
 
 The global delay is configured in Settings (30 seconds, 1 minute, 5 minutes, 15 minutes, or 1 hour; default 1 minute) and persisted by `PersistentSettingsRepository`.
 
+Per-app rules override the global delay. The Applications screen lists the launchable apps on the device and stores one preset per package (`PersistentAppDelayRulesRepository`, encoded as `package=millis` pairs in local preferences); a package without a rule keeps the global delay. Rules are resolved at capture time, so already queued items keep their original due time.
+
 For each held notification:
 
 1. `WorkManagerNotificationScheduler` enqueues a unique `OneTimeWorkRequest` with the remaining delay.

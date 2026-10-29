@@ -44,7 +44,7 @@ Status: **implemented (MVP)** — listener, filters, persistent store, and unit 
 - Notification renderer — re-post held notifications at scheduled time
 - Pipeline: see `docs/architecture/notification-pipeline.md`
 
-Status: **MVP implemented** — global configurable delay, persistent queue, WorkManager scheduler, re-delivery, and retry safety. Per-app rules, batching, and queue cancellation pending.
+Status: **MVP implemented** — global and per-app configurable delay, persistent queue, WorkManager scheduler, re-delivery, and retry safety. Batching and queue cancellation pending.
 
 ## Phase 3 — User Experience
 
@@ -57,7 +57,7 @@ Status: **MVP implemented** — global configurable delay, persistent queue, Wor
 - History and Settings: retention, clear data, language, about
 - Accessibility pass and visual polish per `docs/product/design.md`
 
-Status: **in progress** — onboarding, queue, history/logs, and settings (delay + permissions) implemented; app management and rule configuration pending.
+Status: **in progress** — onboarding, queue, history/logs, settings (delay + permissions), and app management with per-app delay presets implemented; custom schedules pending.
 
 ## Phase 4 — Reliability
 

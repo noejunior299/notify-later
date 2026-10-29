@@ -5,6 +5,8 @@ import android.content.pm.ApplicationInfo
 import ao.techify.notifylater.core.notifications.CaptureLogger
 import ao.techify.notifylater.core.scheduler.NotificationScheduler
 import ao.techify.notifylater.core.scheduler.WorkManagerNotificationScheduler
+import ao.techify.notifylater.core.settings.AppDelayRulesRepository
+import ao.techify.notifylater.core.settings.PersistentAppDelayRulesRepository
 import ao.techify.notifylater.core.settings.PersistentSettingsRepository
 import ao.techify.notifylater.core.settings.SettingsRepository
 import ao.techify.notifylater.data.repository.PersistentNotificationRepository
@@ -36,6 +38,10 @@ class NotifyLaterApplication : Application(), NotifyLaterApplicationHolder {
 
     override val notificationScheduler: NotificationScheduler by lazy {
         WorkManagerNotificationScheduler(this)
+    }
+
+    override val appDelayRulesRepository: AppDelayRulesRepository by lazy {
+        PersistentAppDelayRulesRepository(this)
     }
 
     override fun completeOnboarding() {
@@ -71,6 +77,7 @@ interface NotifyLaterApplicationHolder {
     val notificationRepository: NotificationRepository
     val settingsRepository: SettingsRepository
     val notificationScheduler: NotificationScheduler
+    val appDelayRulesRepository: AppDelayRulesRepository
 
     /** Persists onboarding completion outside the composition lifecycle. */
     fun completeOnboarding()

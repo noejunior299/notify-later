@@ -439,6 +439,22 @@ fun QuietEmptyState(
 }
 
 /**
+ * Rótulo legível para um atraso em millis (presets da app + fallback).
+ * Partilhado por Settings, Applications e Application Details.
+ */
+@Composable
+fun delayLabelOf(delayMillis: Long): String = when (delayMillis) {
+    30_000L -> stringResource(R.string.delay_30_seconds)
+    60_000L -> stringResource(R.string.delay_1_minute)
+    5 * 60_000L -> stringResource(R.string.delay_5_minutes)
+    15 * 60_000L -> stringResource(R.string.delay_15_minutes)
+    30 * 60_000L -> stringResource(R.string.delay_30_minutes)
+    60 * 60_000L -> stringResource(R.string.delay_1_hour)
+    2 * 60 * 60_000L -> stringResource(R.string.delay_2_hours)
+    else -> stringResource(R.string.delay_seconds, (delayMillis / 1_000L).toInt())
+}
+
+/**
  * Avatar com a inicial da aplicação. As cores vêm da paleta da marca,
  * nunca de um hash arbitrário com dezenas de tons.
  */

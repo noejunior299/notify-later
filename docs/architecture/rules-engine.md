@@ -1,6 +1,7 @@
 # Rules Engine — Notify Later
 
-Conceptual document. No implementation yet.
+Partially implemented: per-app delay presets are live; schedules, quiet hours,
+and category/keyword rules remain design only.
 
 ## Goal
 
@@ -51,4 +52,7 @@ Rules and schedules are local (Room / DataStore). Schema must support migration 
 
 ## Status
 
-Design only. Implemented in Phase 2 per `docs/product/roadmap.md`.
+Implemented: global delay (Settings) and per-app delay presets (Applications
+screen, `AppDelayRules`), resolved at capture time with the per-app rule taking
+priority. Still design only: schedules, quiet hours, batching, and
+category/keyword rules.
