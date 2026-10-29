@@ -1,7 +1,12 @@
-# Notify Later
+<p align="center">
+  <img src="docs/assets/logo.png" alt="Notify Later — a sleeping bell with a yellow clock" width="136" />
+</p>
 
-> **Your notifications belong to you.  
-> You decide when they reach you.**
+<h1 align="center">Notify Later</h1>
+
+<p align="center">
+  <strong>Your notifications belong to you.<br/>You decide when they reach you.</strong>
+</p>
 
 <p align="center">
   <em>As suas notificações pertencem a si.<br/>Você decide quando elas chegam.</em>
@@ -77,11 +82,19 @@ The repository is structured to allow a future `ios/` implementation sharing pro
 
 ## Screenshots
 
-> Placeholder — screenshots will be added once the initial UI is implemented.
+<p align="center">
+  <img src="docs/assets/screenshots/onboarding.png" alt="Onboarding with the sleeping bell logo and the three product principles" width="240" />
+  <img src="docs/assets/screenshots/home.png" alt="Home with the quiet status hero and shortcuts to Applications, Queue, Logs and Settings" width="240" />
+  <img src="docs/assets/screenshots/queue.png" alt="Empty Queue with the sleeping bell and the Pending badge" width="240" />
+</p>
 
-| Onboarding | Home | Queue |
-|------------|------|-------|
-| _coming soon_ | _coming soon_ | _coming soon_ |
+<p align="center">
+  <img src="docs/assets/screenshots/logs.png" alt="Empty Logs screen with a real-time capture introduction" width="240" />
+  <img src="docs/assets/screenshots/settings.png" alt="Settings with notification access, preferences and about sections" width="240" />
+  <img src="docs/assets/screenshots/applications.png" alt="Applications screen showing that app detection is coming in a future update" width="240" />
+</p>
+
+<p align="center"><em>Debug build on Android, English, light theme. The interface is also available in Portuguese and in dark theme.</em></p>
 
 Design direction: minimal, calm, spacious, accessible, native Android, low visual noise. See [Design](docs/product/design.md).
 
