@@ -9,7 +9,10 @@ import ao.techify.notifylater.domain.model.Notification
  *
  * Why: on (re)connection Android may deliver already-active notifications via
  * onNotificationPosted. Re-publishing them produces unwanted copies, so every
- * key present in the connection snapshot is suppressed for the whole session.
+ * key present in the connection snapshot is suppressed only while its content
+ * matches the snapshot. A changed content signature means an update (for
+ * example a new WhatsApp message in the same conversation key) and is captured.
+ * Content signatures are hashes, never raw notification text.
  *
  * Concurrency: Android does not guarantee ordering between
  * onListenerConnected() and onNotificationPosted(); all state is guarded by a
@@ -25,43 +28,55 @@ class NotificationSessionFilter(private val selfPackage: String) {
         data object Process : Decision
         /** Posted by Notify Later itself: never captured. */
         data object IgnoreSelf : Decision
-        /** Active when the listener connected: never re-published this session. */
+        /** Active when the listener connected: ignored until it is updated. */
         data object IgnoreInitial : Decision
         /** Arrived before the connection snapshot was recorded: ignored, fail-safe. */
         data object IgnoreNotConnected : Decision
     }
 
     private val lock = Any()
-    private val baselineKeys = HashSet<String>()
+    private val baselineSignatures = HashMap<String, String>()
 
     @Volatile
     private var connected: Boolean = false
 
     /**
-     * Records the snapshot of currently active notification keys taken at
-     * connection time and marks the session connected.
+     * Records the snapshot of currently active notifications (key to content
+     * signature) taken at connection time and marks the session connected.
      * Replaces any previous baseline (used again on reconnection).
      */
-    fun onConnected(activeNotificationKeys: Collection<String>) {
+    fun onConnected(activeNotifications: Map<String, String>) {
         synchronized(lock) {
-            baselineKeys.clear()
-            activeNotificationKeys
-                .filter { it.isNotBlank() }
-                .forEach { baselineKeys.add(it) }
+            baselineSignatures.clear()
+            activeNotifications
+                .filterKeys { it.isNotBlank() }
+                .forEach { (key, signature) -> baselineSignatures[key] = signature }
             connected = true
         }
+    }
+
+    /**
+     * Convenience overload for callers that only have keys. Baseline keys are
+     * suppressed until [decide] receives a different content signature.
+     */
+    fun onConnected(activeNotificationKeys: Collection<String>) {
+        onConnected(
+            activeNotificationKeys
+                .filter { it.isNotBlank() }
+                .associateWith { "" }
+        )
     }
 
     /** Clears session state (e.g., service shutdown). */
     fun reset() {
         synchronized(lock) {
-            baselineKeys.clear()
+            baselineSignatures.clear()
             connected = false
         }
     }
 
-    /** Number of baseline keys recorded at connection time. Debug/diagnostics only. */
-    fun baselineCount(): Int = synchronized(lock) { baselineKeys.size }
+    /** Number of baseline entries recorded at connection time. Debug/diagnostics only. */
+    fun baselineCount(): Int = synchronized(lock) { baselineSignatures.size }
 
     fun isConnected(): Boolean = synchronized(lock) { connected }
 
@@ -69,8 +84,16 @@ class NotificationSessionFilter(private val selfPackage: String) {
      * Decides what to do with an incoming notification event.
      * Blank keys intentionally fall through to [Process]; they are rejected
      * later by the existing [NotificationCapture] rules (single validation path).
+     *
+     * @param signature content signature of this event. A baseline key is
+     *   ignored only while its signature matches the connection snapshot; a
+     *   different signature is an update with new content and is processed.
      */
-    fun decide(sourcePackage: String?, notificationKey: String?): Decision {
+    fun decide(
+        sourcePackage: String?,
+        notificationKey: String?,
+        signature: String? = null
+    ): Decision {
         // Self filter always wins, independent of connection state.
         if (sourcePackage != null &&
             NotificationCapture.isSelfNotification(sourcePackage, selfPackage)
@@ -79,8 +102,16 @@ class NotificationSessionFilter(private val selfPackage: String) {
         }
         synchronized(lock) {
             if (!connected) return Decision.IgnoreNotConnected
-            if (notificationKey != null && baselineKeys.contains(notificationKey)) {
-                return Decision.IgnoreInitial
+            if (notificationKey != null) {
+                val baseline = baselineSignatures[notificationKey]
+                if (baseline != null) {
+                    if (signature == null || signature == baseline) {
+                        return Decision.IgnoreInitial
+                    }
+                    // The key now carries fresh content; future events must not
+                    // be mistaken for the snapshot notification again.
+                    baselineSignatures.remove(notificationKey)
+                }
             }
         }
         return Decision.Process

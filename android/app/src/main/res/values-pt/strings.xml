@@ -61,6 +61,9 @@
     <string name="application_details_delay_description">As notificações desta aplicação ficam retidas durante o atraso escolhido e depois são entregues automaticamente.</string>
     <string name="application_details_use_global">Usar padrão global (%1$s)</string>
     <string name="application_details_current_rule">Atual: %1$s</string>
+    <string name="application_details_quiet_title">Som do alerta original</string>
+    <string name="application_details_quiet_description">O Android reproduz o som da aplicação antes de qualquer listener poder ocultar a notificação. Abra as definições de notificações e desative o som para o primeiro alerta não soar.</string>
+    <string name="application_details_quiet_action">Abrir definições de notificações</string>
 
     <!-- Queue -->
     <string name="queue_title">Fila</string>

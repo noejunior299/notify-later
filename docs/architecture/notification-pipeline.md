@@ -24,7 +24,7 @@ NotificationRenderer                        core/notifications/NotificationRende
 Delayed notification shown by Android
 ```
 
-The original notification is cancelled only after the captured item has been persisted and its delivery job scheduled.
+The original notification is hidden immediately after capture, before any disk or WorkManager work, so it does not linger in the shade while the item is persisted. If persistence or scheduling then fails, the listener re-posts the notification immediately instead of losing it.
 
 ## Capture Rules
 
@@ -33,7 +33,7 @@ The listener maps a `StatusBarNotification` into `RawNotification` and lets the 
 - it comes from Notify Later itself (prevents re-capture loops);
 - it comes from `android` or `com.android.systemui` (system chrome);
 - it is ongoing or a foreground-service notification;
-- it is a group summary;
+- it is a group summary (the summary is hidden together with its children, but never queued);
 - its category is `call`, `alarm`, or `service`;
 - it has no notification key or a non-positive timestamp.
 
@@ -88,10 +88,14 @@ Two independent mechanisms are required:
 Critical safety contract:
 
 - Without `POST_NOTIFICATIONS`, the listener leaves the original notification untouched instead of hiding it.
-- If persistence or scheduling fails, the original is left untouched.
-- If cancelling the original fails after scheduling, the job is cancelled and the item is marked dismissed, avoiding a duplicate later.
+- The original is hidden before persistence; if persistence or scheduling fails, it is re-posted immediately.
+- If hiding the original fails, the listener retries after scheduling; a delayed check hides a notification that the source app re-posted.
 - Calls, alarms, services, ongoing notifications, and system chrome are never delayed.
 - Debug builds log package names and keys, never notification content. Release builds emit no capture logs.
+
+## Initial Alert Sounds (Android Limitation)
+
+Android plays the sound, vibration, and heads-up banner **before** it notifies listener services (AOSP `NotificationManagerService` calls `buzzBeepBlinkLocked` before `notifyPostedLocked`). No notification-listener app can prevent that first alert; Notify Later can only remove the notification immediately afterwards. If the source app must stay completely silent, the user has to silence its notification channel in Android settings or keep Do Not Disturb on while Notify Later holds notifications.
 
 ## Testing
 

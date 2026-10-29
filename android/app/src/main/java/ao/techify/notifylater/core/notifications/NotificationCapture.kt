@@ -48,14 +48,29 @@ object NotificationCapture {
     fun isSelfNotification(sourcePackage: String, selfPackage: String): Boolean =
         sourcePackage == selfPackage
 
-    fun shouldCapture(raw: RawNotification, selfPackage: String): Boolean =
+    /**
+     * Shared safety filters. Group summaries are allowed through this base
+     * check because they must be hidden together with their children; content
+     * capture is decided separately by [shouldCapture].
+     */
+    private fun passesBaseFilters(raw: RawNotification, selfPackage: String): Boolean =
         !isSelfNotification(raw.sourcePackage, selfPackage) &&
             raw.sourcePackage !in IGNORED_PACKAGES &&
             raw.notificationKey.isNotBlank() &&
             raw.timestamp > 0L &&
             !raw.isOngoing &&
-            !raw.isGroupSummary &&
             raw.category?.lowercase() !in IGNORED_CATEGORIES
+
+    fun shouldCapture(raw: RawNotification, selfPackage: String): Boolean =
+        passesBaseFilters(raw, selfPackage) && !raw.isGroupSummary
+
+    /**
+     * Group summaries ("2 new messages") must be hidden from the shade while
+     * their children are held, otherwise the source app still exposes content.
+     * They are never queued themselves.
+     */
+    fun shouldHoldGroupSummary(raw: RawNotification, selfPackage: String): Boolean =
+        raw.isGroupSummary && passesBaseFilters(raw, selfPackage)
 
     /** Trims and length-limits text; blank input becomes null. */
     fun sanitizeText(raw: CharSequence?, maxLength: Int): String? {

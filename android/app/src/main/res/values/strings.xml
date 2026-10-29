@@ -61,6 +61,9 @@
     <string name="application_details_delay_description">Notifications from this app are held for the selected delay, then delivered automatically.</string>
     <string name="application_details_use_global">Use global default (%1$s)</string>
     <string name="application_details_current_rule">Current: %1$s</string>
+    <string name="application_details_quiet_title">Original alert sound</string>
+    <string name="application_details_quiet_description">Android plays the source app\'s sound before any listener can hide the notification. Open its notification settings and turn off the sound to keep the first alert quiet.</string>
+    <string name="application_details_quiet_action">Open notification settings</string>
 
     <!-- Queue -->
     <string name="queue_title">Queue</string>

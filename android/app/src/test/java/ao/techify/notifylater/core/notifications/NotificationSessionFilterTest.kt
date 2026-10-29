@@ -64,12 +64,52 @@ class NotificationSessionFilterTest {
 
     @Test
     fun `initial active notification stays suppressed across repeated deliveries`() {
-        session.onConnected(listOf("0|com.android.shell|7|null|42"))
+        session.onConnected(
+            mapOf("0|com.android.shell|7|null|42" to "same-content-hash")
+        )
 
         repeat(5) {
-            val decision = session.decide("com.android.shell", "0|com.android.shell|7|null|42")
+            val decision = session.decide(
+                "com.android.shell",
+                "0|com.android.shell|7|null|42",
+                signature = "same-content-hash"
+            )
             assertEquals(NotificationSessionFilter.Decision.IgnoreInitial, decision)
         }
+    }
+
+    @Test
+    fun `baseline key updated after connection is processed`() {
+        val key = "0|com.whatsapp|7|chat|42"
+        session.onConnected(
+            mapOf(key to "title=old|text=first message|when=1000")
+        )
+
+        // Same notification key, but new message content: this is an update,
+        // not the snapshot notification.
+        val decision = session.decide(
+            "com.whatsapp",
+            key,
+            signature = "title=old|text=second message|when=2000"
+        )
+        assertEquals(NotificationSessionFilter.Decision.Process, decision)
+
+        // Once updated, the key is no longer treated as part of the baseline.
+        assertEquals(
+            NotificationSessionFilter.Decision.Process,
+            session.decide("com.whatsapp", key, signature = "anything")
+        )
+    }
+
+    @Test
+    fun `baseline key with unchanged content is still ignored`() {
+        val key = "0|com.whatsapp|7|chat|42"
+        session.onConnected(mapOf(key to "same-signature"))
+
+        assertEquals(
+            NotificationSessionFilter.Decision.IgnoreInitial,
+            session.decide("com.whatsapp", key, signature = "same-signature")
+        )
     }
 
     // --- 5. same package but different key -> captured ---

@@ -199,6 +199,37 @@ class NotificationCaptureTest {
         assertNull(NotificationCapture.capture(raw(isGroupSummary = true), selfPackage))
     }
 
+    // --- group summary hiding ---
+
+    @Test
+    fun `group summaries from user apps are hidden but never queued`() {
+        val summary = raw(isGroupSummary = true)
+
+        assertTrue(NotificationCapture.shouldHoldGroupSummary(summary, selfPackage))
+        assertNull(NotificationCapture.capture(summary, selfPackage))
+    }
+
+    @Test
+    fun `group summaries bypass hiding when the source is protected`() {
+        listOf(
+            raw(isGroupSummary = true, sourcePackage = selfPackage),
+            raw(isGroupSummary = true, sourcePackage = "android"),
+            raw(isGroupSummary = true, sourcePackage = "com.android.systemui"),
+            raw(isGroupSummary = true, isOngoing = true),
+            raw(isGroupSummary = true, category = "call")
+        ).forEach { summary ->
+            assertFalse(
+                "summary from ${summary.sourcePackage} must stay in the shade",
+                NotificationCapture.shouldHoldGroupSummary(summary, selfPackage)
+            )
+        }
+    }
+
+    @Test
+    fun `normal notifications are not treated as group summaries`() {
+        assertFalse(NotificationCapture.shouldHoldGroupSummary(raw(), selfPackage))
+    }
+
     @Test
     fun `calls alarms and services are left untouched`() {
         listOf("call", "alarm", "service", "CALL").forEach { category ->

@@ -21,8 +21,9 @@ import ao.techify.notifylater.domain.model.Notification as CapturedNotification
  * - small icon is the app icon (per-source icons come later).
  *
  * Fail-safe contract: if rendering is not possible (no POST_NOTIFICATIONS on
- * Android 13+, or any error), nothing is posted AND the original system
- * notification was never cancelled by us, so no data is lost.
+ * Android 13+, or any error), nothing is posted and the caller keeps the item
+ * pending so WorkManager can retry. The original was hidden at capture time,
+ * so this class must never drop the captured content.
  */
 class NotificationRenderer(private val context: Context) {
 
@@ -81,8 +82,8 @@ class NotificationRenderer(private val context: Context) {
             notificationManager.notify(id, builder.build())
             true
         } catch (e: Exception) {
-            // Never crash and never lose data: original was not cancelled.
-            CaptureLogger.w(TAG, "render failed; original notification remains", e)
+            // Never crash; the worker keeps the item pending and retries.
+            CaptureLogger.w(TAG, "render failed; item stays pending", e)
             false
         }
     }

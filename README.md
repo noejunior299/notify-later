@@ -65,7 +65,8 @@ Full details: [docs/product/principles.md](docs/product/principles.md)
 ```
 
 - Android app built with Jetpack Compose + Material 3, available in English and Portuguese.
-- The notification listener captures new notifications, persists them locally, cancels the original, and re-delivers it after the delay configured in Settings.
+- The notification listener captures new notifications, hides the original immediately (including group summaries), persists them locally, and re-delivers them after the delay configured in Settings.
+- Android alerts (sound/vibration/heads-up) fire before any listener app is notified, so the source app can still be heard briefly; silence its notification channel or use Do Not Disturb if it must be completely quiet.
 - Queue and Logs show pending and delivered notifications; Settings handles notification access, posting permission, and the global delay.
 - Applications lists the launchable apps so each one can get its own delay (for example WhatsApp 30 minutes, Facebook 1 hour); apps without a rule follow the global delay.
 - Batching, quiet hours, and custom schedules are **not implemented yet**; delays are limited to the offered presets.

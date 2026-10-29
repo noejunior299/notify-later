@@ -1,7 +1,9 @@
 package ao.techify.notifylater.feature.applications
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.drawable.Drawable
+import android.provider.Settings
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -18,6 +20,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.NotificationsOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -166,6 +171,43 @@ fun ApplicationDetailsScreen(
                 }
             }
             Spacer(Modifier.height(24.dp))
+            SectionHeading(stringResource(R.string.application_details_quiet_title))
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = stringResource(R.string.application_details_quiet_description),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(bottom = 8.dp, start = 4.dp, end = 4.dp)
+            )
+            SoftCard(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { openNotificationSettings(context, packageName) }
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.NotificationsOff,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        text = stringResource(R.string.application_details_quiet_action),
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Icon(
+                        imageVector = Icons.Rounded.ChevronRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            Spacer(Modifier.height(24.dp))
         }
     }
 }
@@ -222,3 +264,15 @@ private fun resolveAppInfo(context: Context, packageName: String): AppInfo? = ru
         icon = packageManager.getApplicationIcon(packageName)
     )
 }.getOrNull()
+
+/**
+ * Opens the source app's notification settings so its channels can be made
+ * silent. Android alerts before listeners run, so this is the only way to keep
+ * the first sound quiet while Notify Later holds the notification.
+ */
+private fun openNotificationSettings(context: Context, packageName: String) {
+    val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+        .putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    runCatching { context.startActivity(intent) }
+}

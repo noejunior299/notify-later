@@ -11,8 +11,9 @@ import ao.techify.notifylater.domain.model.NotificationStatus
 /**
  * Delivers one held notification after its scheduled delay.
  *
- * Safety: the original notification is only cancelled after the captured item
- * has been persisted and scheduled. If re-posting is impossible (for example
+ * Safety: the original notification is hidden immediately at capture and the
+ * item is persisted/scheduled right after; if that tail fails, the listener
+ * restores the original. If re-posting is impossible (for example
  * POST_NOTIFICATIONS was revoked), the item stays pending and WorkManager
  * retries instead of silently dropping it.
  */
