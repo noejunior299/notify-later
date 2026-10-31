@@ -7,6 +7,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import ao.techify.notifylater.feature.splash.SplashScreen
 import ao.techify.notifylater.navigation.AppShell
 import ao.techify.notifylater.navigation.Routes
 import ao.techify.notifylater.ui.theme.NotifyLaterTheme
@@ -34,13 +41,27 @@ class MainActivity : ComponentActivity() {
             Routes.ONBOARDING
         }
 
+        // Splash only on a cold start; not after rotation or language change.
+        val coldStart = savedInstanceState == null
+
         setContent {
             NotifyLaterTheme {
+                var showSplash by rememberSaveable { mutableStateOf(coldStart) }
                 val navController = rememberNavController()
-                AppShell(
-                    navController = navController,
-                    startDestination = startDestination
-                )
+                Crossfade(
+                    targetState = showSplash,
+                    animationSpec = tween(450),
+                    label = "splash"
+                ) { splash ->
+                    if (splash) {
+                        SplashScreen(onFinished = { showSplash = false })
+                    } else {
+                        AppShell(
+                            navController = navController,
+                            startDestination = startDestination
+                        )
+                    }
+                }
             }
         }
     }
