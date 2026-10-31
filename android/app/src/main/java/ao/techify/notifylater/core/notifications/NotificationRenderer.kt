@@ -69,7 +69,7 @@ class NotificationRenderer(private val context: Context) {
                 .setContentText(displayText)
                 .setSubText(context.getString(R.string.renderer_delivered_by_app, appName))
                 .setAutoCancel(true)
-                .setContentIntent(contentIntent())
+                .setContentIntent(contentIntent(captured))
             if (!captured.text.isNullOrBlank()) {
                 builder.setStyle(
                     NotificationCompat.BigTextStyle()
@@ -88,13 +88,25 @@ class NotificationRenderer(private val context: Context) {
         }
     }
 
-    private fun contentIntent(): PendingIntent? = try {
-        PendingIntent.getActivity(
-            context,
-            0,
-            Intent(context, MainActivity::class.java),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
+    /**
+     * Tapping the delivered copy must behave like tapping the original:
+     * 1. the source app's own contentIntent (deep link), when still in memory;
+     * 2. otherwise the source app's launcher activity;
+     * 3. otherwise Notify Later itself.
+     */
+    private fun contentIntent(captured: CapturedNotification): PendingIntent? = try {
+        OriginalIntents.take(captured.id) ?: run {
+            val launch = context.packageManager
+                .getLaunchIntentForPackage(captured.sourcePackage)
+                ?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                ?: Intent(context, MainActivity::class.java)
+            PendingIntent.getActivity(
+                context,
+                captured.id.hashCode(),
+                launch,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        }
     } catch (_: Exception) {
         null
     }

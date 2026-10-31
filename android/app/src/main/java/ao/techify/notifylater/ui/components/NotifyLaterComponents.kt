@@ -58,6 +58,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import ao.techify.notifylater.R
+import androidx.core.graphics.drawable.toBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import ao.techify.notifylater.ui.theme.OnYellow
 import ao.techify.notifylater.ui.theme.YellowClock
 
@@ -444,6 +446,7 @@ fun QuietEmptyState(
  */
 @Composable
 fun delayLabelOf(delayMillis: Long): String = when (delayMillis) {
+    0L -> stringResource(R.string.delay_off)
     30_000L -> stringResource(R.string.delay_30_seconds)
     60_000L -> stringResource(R.string.delay_1_minute)
     5 * 60_000L -> stringResource(R.string.delay_5_minutes)
@@ -521,4 +524,29 @@ fun NotifyScaffold(
         },
         content = content
     )
+}
+
+/**
+ * Ícone real da aplicação de origem; cai para a inicial quando o pacote
+ * não é visível (desinstalado, oculto).
+ */
+@Composable
+fun AppIcon(packageName: String, label: String = packageName, size: Dp = 44.dp) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val bitmap = remember(packageName) {
+        runCatching {
+            context.packageManager.getApplicationIcon(packageName).toBitmap().asImageBitmap()
+        }.getOrNull()
+    }
+    if (bitmap != null) {
+        Image(
+            bitmap = bitmap,
+            contentDescription = null,
+            modifier = Modifier
+                .size(size)
+                .clip(RoundedCornerShape(size * 0.3f))
+        )
+    } else {
+        InitialAvatar(name = label, modifier = Modifier.size(size))
+    }
 }

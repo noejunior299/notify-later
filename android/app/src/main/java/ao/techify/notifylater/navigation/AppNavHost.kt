@@ -3,6 +3,11 @@ package ao.techify.notifylater.navigation
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import ao.techify.notifylater.feature.about.AboutScreen
+import ao.techify.notifylater.feature.about.PrivacyScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -24,6 +29,7 @@ import ao.techify.notifylater.feature.settings.SettingsScreen
 fun AppNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
+    onNavigateToTab: (String) -> Unit = { navController.navigate(it) },
     startDestination: String = Routes.ONBOARDING
 ) {
     val context = LocalContext.current
@@ -32,8 +38,18 @@ fun AppNavHost(
         navController = navController,
         startDestination = startDestination,
         modifier = modifier,
-        enterTransition = { fadeIn(tween(durationMillis = 200)) },
-        exitTransition = { fadeOut(tween(durationMillis = 140)) }
+        enterTransition = {
+            fadeIn(tween(260, delayMillis = 60)) +
+                scaleIn(tween(300, easing = FastOutSlowInEasing), initialScale = 0.96f)
+        },
+        exitTransition = { fadeOut(tween(140)) },
+        popEnterTransition = {
+            fadeIn(tween(260, delayMillis = 60)) +
+                scaleIn(tween(300, easing = FastOutSlowInEasing), initialScale = 1.03f)
+        },
+        popExitTransition = {
+            fadeOut(tween(140)) + scaleOut(tween(200), targetScale = 0.96f)
+        }
     ) {
         composable(Routes.ONBOARDING) {
             OnboardingScreen(
@@ -49,9 +65,9 @@ fun AppNavHost(
         composable(Routes.HOME) {
             HomeScreen(
                 onNavigateToApplications = { navController.navigate(Routes.APPLICATIONS) },
-                onNavigateToQueue = { navController.navigate(Routes.QUEUE) },
-                onNavigateToSettings = { navController.navigate(Routes.SETTINGS) },
-                onNavigateToLogs = { navController.navigate(Routes.LOGS) }
+                onNavigateToQueue = { onNavigateToTab(Routes.QUEUE) },
+                onNavigateToSettings = { onNavigateToTab(Routes.SETTINGS) },
+                onNavigateToLogs = { onNavigateToTab(Routes.LOGS) }
             )
         }
         composable(Routes.APPLICATIONS) {
@@ -78,8 +94,19 @@ fun AppNavHost(
         }
         composable(Routes.SETTINGS) {
             SettingsScreen(
-                onNavigateToLogs = { navController.navigate(Routes.LOGS) }
+                onNavigateToLogs = { onNavigateToTab(Routes.LOGS) },
+                onNavigateToAbout = { navController.navigate(Routes.ABOUT) },
+                onNavigateToPrivacy = { navController.navigate(Routes.PRIVACY) }
             )
+        }
+        composable(Routes.ABOUT) {
+            AboutScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToPrivacy = { navController.navigate(Routes.PRIVACY) }
+            )
+        }
+        composable(Routes.PRIVACY) {
+            PrivacyScreen(onNavigateBack = { navController.popBackStack() })
         }
     }
 }

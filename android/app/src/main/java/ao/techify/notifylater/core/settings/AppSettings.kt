@@ -10,12 +10,15 @@ data class AppSettings(
     val deliveryDelayMillis: Long = DEFAULT_DELIVERY_DELAY_MILLIS
 ) {
     companion object {
-        const val DEFAULT_DELIVERY_DELAY_MILLIS = 60_000L
+        /** 0 = global delay off: apps without their own rule are not held. */
+        const val DELAY_OFF = 0L
+        const val DEFAULT_DELIVERY_DELAY_MILLIS = DELAY_OFF
         const val MIN_DELIVERY_DELAY_MILLIS = 10_000L
         const val MAX_DELIVERY_DELAY_MILLIS = 24 * 60 * 60_000L
 
         /** Presets shown in Settings. */
         val DELAY_OPTIONS_MILLIS = listOf(
+            DELAY_OFF,
             30_000L,
             60_000L,
             5 * 60_000L,
@@ -24,6 +27,6 @@ data class AppSettings(
         )
 
         fun normalizeDelay(delayMillis: Long): Long =
-            delayMillis.coerceIn(MIN_DELIVERY_DELAY_MILLIS, MAX_DELIVERY_DELAY_MILLIS)
+            if (delayMillis <= DELAY_OFF) DELAY_OFF else delayMillis.coerceIn(MIN_DELIVERY_DELAY_MILLIS, MAX_DELIVERY_DELAY_MILLIS)
     }
 }

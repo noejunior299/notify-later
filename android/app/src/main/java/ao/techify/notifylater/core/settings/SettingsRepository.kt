@@ -82,7 +82,7 @@ class PersistentSettingsRepository(context: Context) : SettingsRepository {
             onboardingCompleted = prefs.getBoolean(KEY_ONBOARDING_COMPLETED, false),
             enabled = prefs.getBoolean(KEY_ENABLED, true),
             language = prefs.getString(KEY_LANGUAGE, "en") ?: "en",
-            deliveryDelayMillis = if (delay in AppSettings.MIN_DELIVERY_DELAY_MILLIS..
+            deliveryDelayMillis = if (delay == AppSettings.DELAY_OFF || delay in AppSettings.MIN_DELIVERY_DELAY_MILLIS..
                 AppSettings.MAX_DELIVERY_DELAY_MILLIS
             ) {
                 delay

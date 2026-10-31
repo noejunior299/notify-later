@@ -9,7 +9,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 /**
@@ -36,6 +35,7 @@ class NotifyLaterNotificationListener : NotificationListenerService() {
 
     // Lazy: Context (and packageName) are only available after attachment.
     private val session by lazy { NotificationSessionFilter(applicationContext.packageName) }
+    private val holds by lazy { SnoozedHolds(applicationContext) }
 
     override fun onListenerConnected() {
         super.onListenerConnected()
@@ -53,12 +53,37 @@ class NotifyLaterNotificationListener : NotificationListenerService() {
             emptyMap()
         }
         session.onConnected(active)
+        instance = this
+        // Snoozes that ended while we were disconnected: the originals are
+        // already back in the shade, so their queue items are delivered.
+        val now = System.currentTimeMillis()
+        holds.all().forEach { (key, hold) ->
+            if (key in active && now >= hold.dueAt - SnoozedHolds.REPOST_TOLERANCE_MILLIS) {
+                val sbn = activeNotifications?.firstOrNull { it.key == key }
+                markSnoozeDelivered(key, hold, sbn?.let { contentSignatureOf(it) } ?: "")
+            }
+        }
         CaptureLogger.d(TAG, "listener connected; baseline notifications=${session.baselineCount()}")
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         if (sbn == null) return
         try {
+            // The system ending one of our snoozes: the original is back, with
+            // its own deep link and actions. Never capture it again.
+            val hold = sbn.key?.let { holds.get(it) }
+            if (hold != null &&
+                System.currentTimeMillis() >= hold.dueAt - SnoozedHolds.REPOST_TOLERANCE_MILLIS
+            ) {
+                markSnoozeDelivered(sbn.key, hold, contentSignatureOf(sbn))
+                return
+            }
+            // Same notification re-posted by the system after we released it
+            // (regrouping, ranking): leave it alone. New content is held again.
+            if (sbn.key != null && holds.isReleasedUnchanged(sbn.key, contentSignatureOf(sbn))) {
+                CaptureLogger.d(TAG, "released notification re-posted unchanged; untouched")
+                return
+            }
             val selfPackage = packageName
             val holder = applicationContext as? NotifyLaterApplicationHolder
             if (holder?.settingsRepository?.current?.enabled == false) {
@@ -102,14 +127,27 @@ class NotifyLaterNotificationListener : NotificationListenerService() {
                 isGroupSummary = notification != null &&
                     (notification.flags and android.app.Notification.FLAG_GROUP_SUMMARY) != 0
             )
+            val holderApp = holder
+            val delayMillis = if (holderApp == null) 0L else AppDelayRules.resolve(
+                rules = holderApp.appDelayRulesRepository.current,
+                packageName = raw.sourcePackage,
+                globalDelayMillis = holderApp.settingsRepository.current.deliveryDelayMillis
+            )
             if (raw.isGroupSummary) {
                 // The summary ("2 new messages") must disappear with its
                 // children, otherwise WhatsApp content stays in the shade.
                 // Summaries are hidden, never queued.
                 if (NotificationCapture.shouldHoldGroupSummary(raw, selfPackage) &&
+                    delayMillis > 0L &&
                     NotificationRenderer(applicationContext).canPost()
                 ) {
-                    cancelOriginal(raw.notificationKey)
+                    val summaryDueAt = System.currentTimeMillis() + delayMillis
+                    if (snoozeOriginal(raw.notificationKey, delayMillis)) {
+                        // Empty id: nothing to deliver, only recognise the re-post.
+                        holds.put(raw.notificationKey, "", summaryDueAt)
+                    } else {
+                        cancelOriginal(raw.notificationKey)
+                    }
                 }
                 return
             }
@@ -133,31 +171,44 @@ class NotifyLaterNotificationListener : NotificationListenerService() {
             val app = applicationContext as NotifyLaterApplicationHolder
             val key = raw.notificationKey
 
+            // Per-app rule wins over the global delay; with no rule and the
+            // global delay off, the app is not held at all.
+            if (delayMillis <= 0L) {
+                CaptureLogger.d(TAG, "no delay for package=${raw.sourcePackage}; untouched")
+                return
+            }
+
+            // Keep the source app's own tap action so the delivered copy opens
+            // the same screen (deep link) as the original would have.
+            OriginalIntents.put(captured.id, notification?.contentIntent)
+
             // Hide the original before touching disk or WorkManager. Any I/O
             // here is a window where the source app's notification is still
             // visible; cancelling first is what makes "held" feel instant.
-            val hiddenImmediately = cancelOriginal(key)
+            //
+            // Preferred: system snooze. Android keeps the ORIGINAL and re-posts
+            // it at dueAt, so tapping it opens the source app's deep link even
+            // if our process died. Fallback: cancel + re-render a copy.
+            val dueAt = System.currentTimeMillis() + delayMillis
+            val snoozed = snoozeOriginal(key, delayMillis)
+            if (snoozed) holds.put(key, captured.id, dueAt)
+            val hiddenImmediately = snoozed || cancelOriginal(key)
 
             scope.launch {
                 var stored: ao.techify.notifylater.domain.model.Notification? = null
                 var display: ao.techify.notifylater.domain.model.Notification = captured
                 try {
-                    val globalDelay =
-                        app.settingsRepository.settings.first().deliveryDelayMillis
-                    // Per-app rule wins over the global delay (WhatsApp 30 min,
-                    // Facebook 1 h, Phone 5 min, …); no rule falls back to global.
-                    val delay = AppDelayRules.resolve(
-                        rules = app.appDelayRulesRepository.rules.first(),
-                        packageName = raw.sourcePackage,
-                        globalDelayMillis = globalDelay
-                    )
-                    val dueAt = System.currentTimeMillis() + delay
                     display = captured.copy(
                         sourceApplicationName = resolveApplicationLabel(raw.sourcePackage)
                             ?: captured.sourceApplicationName
                     )
                     stored = app.notificationRepository.save(display.copy(dueAt = dueAt))
-                    app.notificationScheduler.schedule(stored)
+                    // Snoozed: the worker is only a safety net that runs after
+                    // the system re-post should have happened.
+                    app.notificationScheduler.schedule(
+                        if (snoozed) stored.copy(dueAt = dueAt + SnoozedHolds.FALLBACK_GRACE_MILLIS)
+                        else stored
+                    )
 
                     if (!hiddenImmediately) {
                         // Retry once now that I/O is done; a transient listener
@@ -171,7 +222,11 @@ class NotifyLaterNotificationListener : NotificationListenerService() {
                     delay(350)
                     if (isNotificationActive(key)) {
                         CaptureLogger.d(TAG, "original reappeared; hiding again key=$key")
-                        cancelOriginal(key)
+                        if (snoozed) {
+                            snoozeOriginal(key, (dueAt - System.currentTimeMillis()).coerceAtLeast(1_000L))
+                        } else {
+                            cancelOriginal(key)
+                        }
                     }
 
                     CaptureLogger.d(
@@ -240,6 +295,19 @@ class NotifyLaterNotificationListener : NotificationListenerService() {
     }
 
     /**
+     * Content-only signature (no post time or flags, which change when the
+     * system regroups or re-ranks). Hashes only; raw text is never stored.
+     */
+    private fun contentSignatureOf(sbn: StatusBarNotification): String {
+        val n = sbn.notification
+        val extras = n?.extras
+        val title = extras?.getCharSequence(android.app.Notification.EXTRA_TITLE)?.toString().orEmpty()
+        val text = extras?.getCharSequence(android.app.Notification.EXTRA_TEXT)?.toString().orEmpty()
+        val summary = n != null && (n.flags and android.app.Notification.FLAG_GROUP_SUMMARY) != 0
+        return "${n?.`when` ?: 0L}:${title.hashCode()}:${text.hashCode()}:$summary"
+    }
+
+    /**
      * Hides the source notification from the shade. Runs on the listener
      * callback thread before any disk or WorkManager work, because every
      * millisecond spent elsewhere keeps the original visible.
@@ -256,15 +324,64 @@ class NotifyLaterNotificationListener : NotificationListenerService() {
         false
     }
 
+    /**
+     * Snoozes the original for [durationMillis]. The system owns it from here:
+     * it survives our process death and comes back untouched (deep link,
+     * actions, icon). Returns false when snoozing is not possible.
+     */
+    private fun snoozeOriginal(key: String, durationMillis: Long): Boolean = try {
+        snoozeNotification(key, durationMillis)
+        CaptureLogger.d(TAG, "original snoozed key=$key for=${durationMillis}ms")
+        true
+    } catch (t: Throwable) {
+        CaptureLogger.w(TAG, "snooze failed key=$key; falling back to cancel", t)
+        false
+    }
+
+    private fun markSnoozeDelivered(key: String, hold: SnoozedHolds.Hold, contentSignature: String) {
+        holds.remove(key)
+        holds.markReleased(key, contentSignature)
+        if (hold.notificationId.isEmpty()) return
+        val app = applicationContext as? NotifyLaterApplicationHolder ?: return
+        scope.launch {
+            runCatching {
+                val item = app.notificationRepository.findById(hold.notificationId)
+                if (item != null && item.status == NotificationStatus.PENDING) {
+                    app.notificationRepository.update(
+                        item.copy(
+                            status = NotificationStatus.DELIVERED,
+                            deliveredAt = System.currentTimeMillis()
+                        )
+                    )
+                }
+                app.notificationScheduler.cancel(hold.notificationId)
+                CaptureLogger.d(TAG, "snooze ended; original re-posted id=${hold.notificationId}")
+            }.onFailure { CaptureLogger.w(TAG, "failed to mark snoozed item delivered", it) }
+        }
+    }
+
+    /** Content signature of [key] if it is in the shade, else null. Used by the worker. */
+    fun activeContentSignature(key: String): String? = try {
+        activeNotifications?.firstOrNull { it.key == key }?.let { contentSignatureOf(it) }
+    } catch (_: Throwable) {
+        null
+    }
+
     /** Whether the source notification is still present in the shade. */
-    private fun isNotificationActive(key: String): Boolean = try {
+    fun isNotificationActive(key: String): Boolean = try {
         activeNotifications?.any { it.key == key } == true
     } catch (t: Throwable) {
         CaptureLogger.w(TAG, "failed to read active notifications", t)
         false
     }
 
+    override fun onListenerDisconnected() {
+        if (instance === this) instance = null
+        super.onListenerDisconnected()
+    }
+
     override fun onDestroy() {
+        if (instance === this) instance = null
         CaptureLogger.d(TAG, "listener destroyed")
         session.reset()
         super.onDestroy()
@@ -279,5 +396,10 @@ class NotifyLaterNotificationListener : NotificationListenerService() {
 
     companion object {
         private const val TAG = "NotifyLaterListener"
+
+        /** The connected listener, used by the worker to see the shade. */
+        @Volatile
+        var instance: NotifyLaterNotificationListener? = null
+            private set
     }
 }
