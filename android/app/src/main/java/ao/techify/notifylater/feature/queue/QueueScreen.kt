@@ -42,6 +42,7 @@ import ao.techify.notifylater.R
 import ao.techify.notifylater.domain.model.Notification
 import ao.techify.notifylater.domain.model.NotificationStatus
 import ao.techify.notifylater.ui.components.InitialAvatar
+import ao.techify.notifylater.ui.components.AppIcon
 import ao.techify.notifylater.ui.components.NotifyScaffold
 import ao.techify.notifylater.ui.components.PillBadge
 import ao.techify.notifylater.ui.components.QuietEmptyState
@@ -139,7 +140,9 @@ fun QueueScreen(onNavigateBack: (() -> Unit)? = null) {
                     )
                 }
                 items(held, key = { it.id }) { notification ->
-                    HeldNotificationCard(notification = notification, now = now)
+                    Box(Modifier.animateItem()) {
+                        HeldNotificationCard(notification = notification, now = now)
+                    }
                 }
             }
         }
@@ -164,7 +167,7 @@ private fun HeldNotificationCard(notification: Notification, now: Long) {
     SoftCard(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(14.dp)) {
             Row(verticalAlignment = Alignment.Top) {
-                InitialAvatar(name = appName)
+                AppIcon(packageName = notification.sourcePackage, label = appName)
                 Spacer(Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(

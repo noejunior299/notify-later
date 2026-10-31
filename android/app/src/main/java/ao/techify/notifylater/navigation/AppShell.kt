@@ -64,13 +64,7 @@ fun AppShell(
                         NavigationBarItem(
                             selected = selected,
                             onClick = {
-                                if (!selected) {
-                                    navController.navigate(destination.route) {
-                                        popUpTo(Routes.HOME) { saveState = true }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                }
+                                if (!selected) navController.navigateToTab(destination.route)
                             },
                             icon = { Icon(destination.icon, contentDescription = null) },
                             label = { Text(stringResource(destination.labelRes)) },
@@ -89,8 +83,34 @@ fun AppShell(
     ) { padding ->
         AppNavHost(
             navController = navController,
+            onNavigateToTab = { route -> navController.navigateToTab(route) },
             modifier = Modifier.padding(bottom = padding.calculateBottomPadding()),
             startDestination = startDestination
         )
+    }
+}
+
+/**
+ * Navegação entre separadores.
+ *
+ * Home é a raiz: voltar a ela é sempre um pop até ela (nunca um navigate com
+ * restoreState, que restaurava a pilha guardada da tab anterior e fazia o
+ * toque em Home "não fazer nada"). As outras tabs ficam por cima de Home,
+ * uma de cada vez, preservando o estado de cada uma.
+ */
+fun NavHostController.navigateToTab(route: String) {
+    if (route == Routes.HOME) {
+        if (!popBackStack(Routes.HOME, inclusive = false)) {
+            navigate(Routes.HOME) {
+                popUpTo(graph.id) { inclusive = true }
+                launchSingleTop = true
+            }
+        }
+        return
+    }
+    navigate(route) {
+        popUpTo(Routes.HOME) { saveState = true }
+        launchSingleTop = true
+        restoreState = true
     }
 }

@@ -150,7 +150,7 @@
 
     <!-- Delivery delay / posting permission -->
     <string name="settings_delivery_delay">Atraso de entrega</string>
-    <string name="settings_delivery_delay_description">Quanto tempo as notificações esperam antes de serem entregues.</string>
+    <string name="settings_delivery_delay_description">Espera padrão para todas as apps. Desligado: só apps com regra própria são retidas.</string>
     <string name="settings_delivery_delay_dialog_title">Entregar notificações após</string>
     <string name="delay_30_seconds">30 segundos</string>
     <string name="delay_1_minute">1 minuto</string>
@@ -179,4 +179,28 @@
     <string name="content_desc_navigate_back">Voltar</string>
     <string name="content_desc_open_settings">Abrir definições</string>
     <string name="content_desc_open_application">Abrir aplicação</string>
+    <string name="delay_off">Desligado</string>
+    <string name="settings_delay_off_hint">Desligado: só apps com regra própria são retidas.</string>
+    <string name="splash_tagline">Notificações calmas, no seu tempo.</string>
+    <string name="about_title">Sobre</string>
+    <string name="privacy_title">Privacidade</string>
+    <string name="privacy_headline">As suas notificações nunca saem deste telemóvel.</string>
+    <string name="privacy_local_title">100% no dispositivo</string>
+    <string name="privacy_local_body">As notificações retidas ficam apenas no armazenamento privado da app e são apagadas com ela.</string>
+    <string name="privacy_network_title">Sem acesso à internet</string>
+    <string name="privacy_network_body">O Notify Later não pede a permissão INTERNET. Nada pode ser enviado.</string>
+    <string name="privacy_tracking_title">Sem analítica, sem anúncios</string>
+    <string name="privacy_tracking_body">Sem rastreadores, sem relatórios de erros, sem SDKs de terceiros.</string>
+    <string name="privacy_access_title">Acesso mínimo</string>
+    <string name="privacy_access_body">O acesso às notificações serve apenas para reter e reenviar as notificações das apps que escolher.</string>
+    <string name="about_open_source">Código aberto</string>
+    <string name="about_license_body">Software livre sob a Licença Apache 2.0. Pode ler, modificar e redistribuir.</string>
+    <string name="about_source">Código-fonte</string>
+    <string name="about_source_body">github.com/noejunior299/notify-later</string>
+    <string name="about_report">Reportar um problema</string>
+    <string name="about_report_body">Erros e ideias são bem-vindos no GitHub.</string>
+    <string name="about_license_read">Ler a licença</string>
+    <string name="about_libraries">Feito com</string>
+    <string name="about_libraries_body">Kotlin · Jetpack Compose · Material 3 · Navigation · WorkManager</string>
+    <string name="about_made_with">Feito com cuidado por Noé Júnior</string>
 </resources>

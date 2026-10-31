@@ -150,7 +150,7 @@
 
     <!-- Delivery delay / posting permission -->
     <string name="settings_delivery_delay">Delivery delay</string>
-    <string name="settings_delivery_delay_description">How long notifications wait before they are delivered.</string>
+    <string name="settings_delivery_delay_description">Default wait for all apps. Off: only apps with their own rule are held.</string>
     <string name="settings_delivery_delay_dialog_title">Deliver notifications after</string>
     <string name="delay_30_seconds">30 seconds</string>
     <string name="delay_1_minute">1 minute</string>
@@ -179,4 +179,28 @@
     <string name="content_desc_navigate_back">Navigate back</string>
     <string name="content_desc_open_settings">Open settings</string>
     <string name="content_desc_open_application">Open application</string>
+    <string name="delay_off">Off</string>
+    <string name="settings_delay_off_hint">Off: only apps with their own rule are held.</string>
+    <string name="splash_tagline">Calm notifications, on your time.</string>
+    <string name="about_title">About</string>
+    <string name="privacy_title">Privacy</string>
+    <string name="privacy_headline">Your notifications never leave this phone.</string>
+    <string name="privacy_local_title">100% on-device</string>
+    <string name="privacy_local_body">Held notifications are stored only in the app\'s private storage and deleted with the app.</string>
+    <string name="privacy_network_title">No internet access</string>
+    <string name="privacy_network_body">Notify Later does not request the INTERNET permission. Nothing can be uploaded.</string>
+    <string name="privacy_tracking_title">No analytics, no ads</string>
+    <string name="privacy_tracking_body">No trackers, no crash reporters, no third-party SDKs.</string>
+    <string name="privacy_access_title">Minimal access</string>
+    <string name="privacy_access_body">Notification access is used only to hold and re-deliver notifications from the apps you choose.</string>
+    <string name="about_open_source">Open source</string>
+    <string name="about_license_body">Free software under the Apache License 2.0. You can read, modify and redistribute it.</string>
+    <string name="about_source">Source code</string>
+    <string name="about_source_body">github.com/noejunior299/notify-later</string>
+    <string name="about_report">Report an issue</string>
+    <string name="about_report_body">Bugs and ideas are welcome on GitHub.</string>
+    <string name="about_license_read">Read the license</string>
+    <string name="about_libraries">Built with</string>
+    <string name="about_libraries_body">Kotlin · Jetpack Compose · Material 3 · Navigation · WorkManager</string>
+    <string name="about_made_with">Made with care by Noé Júnior</string>
 </resources>

@@ -74,7 +74,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun SettingsScreen(
     onNavigateBack: (() -> Unit)? = null,
-    onNavigateToLogs: () -> Unit = {}
+    onNavigateToLogs: () -> Unit = {},
+    onNavigateToAbout: () -> Unit = {},
+    onNavigateToPrivacy: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val app = context.applicationContext as NotifyLaterApplicationHolder
@@ -87,8 +89,6 @@ fun SettingsScreen(
     }
     var showDelayDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
-    var showAboutDialog by remember { mutableStateOf(false) }
-    var showPrivacyDialog by remember { mutableStateOf(false) }
 
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner, context) {
@@ -206,10 +206,10 @@ fun SettingsScreen(
                     icon = Icons.Rounded.Shield,
                     title = stringResource(R.string.settings_privacy),
                     description = stringResource(R.string.settings_privacy_description),
-                    onClick = { showPrivacyDialog = true }
+                    onClick = onNavigateToPrivacy
                 )
                 SettingsDivider()
-                AboutRow(onClick = { showAboutDialog = true })
+                AboutRow(onClick = onNavigateToAbout)
             }
 
             Spacer(Modifier.height(16.dp))
@@ -257,44 +257,6 @@ fun SettingsScreen(
                 TextButton(onClick = { showLanguageDialog = false }) {
                     Text(stringResource(R.string.common_done))
                 }
-            }
-        )
-    }
-
-    if (showAboutDialog) {
-        val packageInfo = remember(context) { context.packageManager.getPackageInfo(context.packageName, 0) }
-        val versionName = packageInfo.versionName ?: "1.0"
-        AlertDialog(
-            onDismissRequest = { showAboutDialog = false },
-            title = { Text(stringResource(R.string.app_name)) },
-            text = {
-                Column {
-                    Text(stringResource(R.string.settings_about_description))
-                    Spacer(Modifier.height(8.dp))
-                    Text(stringResource(R.string.settings_version, versionName))
-                    Text(stringResource(R.string.settings_license))
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { showAboutDialog = false }) { Text(stringResource(R.string.common_done)) }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    runCatching {
-                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/noejunior299/notify-later")))
-                    }
-                }) { Text(stringResource(R.string.settings_github)) }
-            }
-        )
-    }
-
-    if (showPrivacyDialog) {
-        AlertDialog(
-            onDismissRequest = { showPrivacyDialog = false },
-            title = { Text(stringResource(R.string.settings_privacy)) },
-            text = { Text(stringResource(R.string.settings_privacy_description)) },
-            confirmButton = {
-                TextButton(onClick = { showPrivacyDialog = false }) { Text(stringResource(R.string.common_done)) }
             }
         )
     }
@@ -353,6 +315,7 @@ private fun DelayDialog(
 
 @Composable
 private fun delayLabel(delayMillis: Long): String = when (delayMillis) {
+    0L -> stringResource(R.string.delay_off)
     30_000L -> stringResource(R.string.delay_30_seconds)
     60_000L -> stringResource(R.string.delay_1_minute)
     5 * 60_000L -> stringResource(R.string.delay_5_minutes)

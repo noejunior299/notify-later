@@ -8,6 +8,8 @@ object Routes {
     const val QUEUE = "queue"
     const val LOGS = "logs"
     const val SETTINGS = "settings"
+    const val ABOUT = "about"
+    const val PRIVACY = "privacy"
 
     const val ARG_PACKAGE_NAME = "packageName"
     const val APPLICATION_DETAILS_WITH_ARG = "application_details/{$ARG_PACKAGE_NAME}"

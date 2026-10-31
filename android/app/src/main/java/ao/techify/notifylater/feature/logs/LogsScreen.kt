@@ -38,6 +38,7 @@ import ao.techify.notifylater.R
 import ao.techify.notifylater.domain.model.NotificationStatus
 import ao.techify.notifylater.ui.components.BellWithClockBadge
 import ao.techify.notifylater.ui.components.InitialAvatar
+import ao.techify.notifylater.ui.components.AppIcon
 import ao.techify.notifylater.ui.components.NotifyScaffold
 import ao.techify.notifylater.ui.components.PillBadge
 import ao.techify.notifylater.ui.components.QuietEmptyState
@@ -126,7 +127,7 @@ fun LogsScreen(onNavigateBack: (() -> Unit)? = null) {
                 ) {
                     items(captured.reversed()) { n ->
                         val appName = n.sourceApplicationName?.takeIf { it.isNotBlank() } ?: n.sourcePackage
-                        SoftCard(modifier = Modifier.fillMaxWidth()) {
+                        SoftCard(modifier = Modifier.fillMaxWidth().animateItem()) {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -229,22 +230,5 @@ private fun statusColors(status: NotificationStatus): Pair<Color, Color> {
         NotificationStatus.DELIVERED -> scheme.primaryContainer to scheme.onPrimaryContainer
         NotificationStatus.DISMISSED -> scheme.surfaceVariant to scheme.onSurfaceVariant
         NotificationStatus.EXPIRED -> scheme.surfaceVariant to scheme.onSurfaceVariant
-    }
-}
-
-@Composable
-private fun AppIcon(packageName: String, size: androidx.compose.ui.unit.Dp = 40.dp) {
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val drawable = androidx.compose.runtime.remember(packageName) {
-        try { context.packageManager.getApplicationIcon(packageName) } catch (_: Exception) { null }
-    }
-    if (drawable != null) {
-        Image(
-            bitmap = drawable.toBitmap().asImageBitmap(),
-            contentDescription = null,
-            modifier = androidx.compose.ui.Modifier.size(size)
-        )
-    } else {
-        ao.techify.notifylater.ui.components.InitialAvatar(name = packageName)
     }
 }

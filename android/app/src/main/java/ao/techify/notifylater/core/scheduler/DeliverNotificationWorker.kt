@@ -6,6 +6,8 @@ import androidx.work.WorkerParameters
 import ao.techify.notifylater.NotifyLaterApplicationHolder
 import ao.techify.notifylater.core.notifications.CaptureLogger
 import ao.techify.notifylater.core.notifications.NotificationRenderer
+import ao.techify.notifylater.core.notifications.NotifyLaterNotificationListener
+import ao.techify.notifylater.core.notifications.SnoozedHolds
 import ao.techify.notifylater.domain.model.NotificationStatus
 
 /**
@@ -34,6 +36,28 @@ class DeliverNotificationWorker(
         if (dueAt != null && System.currentTimeMillis() < dueAt) {
             // Should be rare (work was enqueued with the remaining delay).
             return Result.retry()
+        }
+
+        // Held via system snooze: normally the system already re-posted the
+        // original (with its own deep link) and the listener marked it
+        // delivered. If it is in the shade, just record that; otherwise the
+        // snooze was lost (reboot, OEM quirk) and a copy is rendered below.
+        val holds = SnoozedHolds(applicationContext)
+        holds.keyFor(id)?.let { key ->
+            val signature = NotifyLaterNotificationListener.instance?.activeContentSignature(key)
+            if (signature != null) {
+                holds.remove(key)
+                holds.markReleased(key, signature)
+                repository.update(
+                    notification.copy(
+                        status = NotificationStatus.DELIVERED,
+                        deliveredAt = System.currentTimeMillis()
+                    )
+                )
+                return Result.success()
+            }
+            holds.remove(key)
+            CaptureLogger.w(TAG, "snoozed original not seen; rendering fallback copy")
         }
 
         val renderer = NotificationRenderer(applicationContext)
