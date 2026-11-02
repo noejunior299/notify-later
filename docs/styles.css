@@ -90,6 +90,21 @@ h2 { margin: 16px 0 0; font-size: clamp(36px, 4vw, 52px); }
 .delay-copy p { max-width: 390px; margin: 22px 0 0; color: var(--muted); line-height: 1.7; font-size: 15px; }
 .delay-panel { padding: 28px; border: 1px solid #fff; border-radius: 24px; background: #fff; box-shadow: 0 20px 50px #4634c912; }
 .delay-panel-head { display: flex; justify-content: space-between; align-items: center; color: var(--ink); font-family: "Space Grotesk"; font-size: 14px; font-weight: 700; }
+.notification-preview { display: flex; align-items: center; gap: 11px; margin-top: 21px; padding: 12px; border: 1px solid #e8e4f8; border-radius: 15px; background: #fbfaff; box-shadow: 0 5px 15px #4634c908; }
+.notification-app-icon { display: grid; flex: 0 0 34px; place-items: center; width: 34px; height: 34px; border-radius: 10px; }
+.whatsapp-icon { background: #25d366; }
+.whatsapp-icon svg { width: 23px; fill: #fff; }
+.notification-copy { min-width: 0; flex: 1; }
+.notification-copy > div { display: flex; align-items: center; gap: 7px; }
+.notification-copy strong { font-size: 11px; }
+.notification-copy span { color: var(--muted); font-size: 9px; }
+.notification-copy p { overflow: hidden; margin: 3px 0 1px; color: var(--ink); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.notification-copy small { color: var(--muted); font-size: 8px; }
+.notification-menu { align-self: flex-start; border: 0; background: transparent; color: #aaa6c1; font-weight: 700; letter-spacing: 1px; cursor: pointer; }
+.notification-actions { display: flex; align-items: center; gap: 8px; margin-top: 10px; color: var(--muted); font-size: 10px; }
+.notification-actions button { padding: 6px 9px; border: 1px solid #dcd6ff; border-radius: 8px; background: #f0edff; color: var(--purple); font: inherit; font-weight: 700; }
+.notification-actions button b { margin-left: 4px; font-size: 12px; }
+.ios-hint { margin-left: auto; font-size: 9px; opacity: .8; }
 .live-pill { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-family: "DM Sans"; font-size: 11px; font-weight: 500; }
 .live-pill i { width: 6px; height: 6px; border-radius: 50%; background: #62c98a; box-shadow: 0 0 0 4px #62c98a24; }
 .delay-options { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 24px; }
@@ -120,6 +135,12 @@ h2 { margin: 16px 0 0; font-size: clamp(36px, 4vw, 52px); }
 .site-footer .brand img { width: 27px; height: 27px; }
 .site-footer p { margin: 0; flex: 1; }
 .site-footer a { color: var(--purple); font-weight: 700; }
+.platform-links { display: flex; align-items: center; gap: 8px; }
+.store-button { display: inline-flex; align-items: center; gap: 7px; min-height: 38px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--white); color: var(--ink) !important; font-family: "Space Grotesk"; font-size: 11px; line-height: 1.05; }
+.store-button svg { width: 19px; height: 19px; fill: var(--purple); }
+.store-button small { display: block; margin-bottom: 3px; color: var(--muted); font-family: "DM Sans"; font-size: 6px; letter-spacing: .08em; }
+.store-button-disabled { cursor: default; opacity: .55; }
+.store-button-disabled svg { fill: var(--muted); }
 @keyframes breathe { 0%, 100% { transform: scale(.96); opacity: .82; } 50% { transform: scale(1.04); opacity: 1; } }
 @keyframes drift { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-10px) rotate(8deg); } }
 @keyframes rise-in { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
@@ -149,6 +170,8 @@ h2 { margin: 16px 0 0; font-size: clamp(36px, 4vw, 52px); }
   .download .button { margin-top: 30px; }
   .site-footer { flex-wrap: wrap; gap: 16px 24px; padding: 45px 0 30px; }
   .site-footer p { order: 3; flex-basis: 100%; }
+  .platform-links { order: 2; }
+  .site-footer > a { order: 4; }
 }
 @media (max-width: 390px) {
   .shell, .site-header { width: calc(100% - 28px); }
@@ -159,5 +182,9 @@ h2 { margin: 16px 0 0; font-size: clamp(36px, 4vw, 52px); }
   .phone { transform: scale(.91) rotate(4deg); transform-origin: center; margin: -22px 0; }
   .phone:hover { transform: scale(.91) rotate(4deg); }
   .delay-panel-head { align-items: flex-start; flex-direction: column; gap: 8px; }
+  .notification-actions { flex-wrap: wrap; }
+  .ios-hint { flex-basis: 100%; margin-left: 0; }
+  .platform-links { width: 100%; }
+  .store-button { flex: 1; }
   .download { padding: 36px 24px; }
 }
